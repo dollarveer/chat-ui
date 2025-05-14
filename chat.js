@@ -454,7 +454,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	/************************ WEBSOCKET ***********************/
 
 	// WebSocket secure connection setup
-	const socket = new WebSocket("ws://localhost:8080"); // use wss for security
+	const socket = new WebSocket("wss://websocket-qk4f.onrender.com"); // use wss for security
 	let statusTimeout;
 	let currentFingerprint = crypto.randomUUID();
 	let currentIdentityHash = null;
@@ -590,7 +590,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	function attemptReconnect() {
 		setTimeout(() => {
 			console.log("Reconnecting WebSocket...");
-			socket = new WebSocket("ws://localhost:8080");
+			socket = new WebSocket("wss://websocket-qk4f.onrender.com");
 		}, 20000); // Retry after 5 seconds
 	}
 
