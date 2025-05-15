@@ -317,14 +317,10 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 			chatBox.appendChild(wrapper);
 			return;
 		}
-		/*
+		
 		icon.src = type === 'own'
-		  ? 'https://www.pinclipart.com/picdir/middle/205-2059398_blinkk-en-mac-app-store-ninja-icon-transparent.png'
-		  : 'https://cdn1.iconfinder.com/data/icons/ninja-things-1/1772/ninja-simple-512.png';
-		  */
-		icon.src = type === 'own'
-			? 'assets/img/logo-dark.png'
-			: 'assets/img/logo-light.png';
+			? 'assets/img/sender.png'
+			: 'assets/img/recipient.png';
 
 		const menu_button = document.createElement('span');
 		menu_button.className = 'menu-button';
@@ -382,23 +378,23 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 					let mediaElement;
 					if (['mp4', 'webm', 'ogg'].includes(ext)) {
 						mediaElement = document.createElement('video');
-						mediaElement.src = url;
+						mediaElement.src = "file?file=" + url + "&identity="+ chatId;
 						mediaElement.setAttribute("style", "max-width:80%;margin-top:8px;");
 						mediaElement.controls = true;
 					} else if (['mp3', 'wav', 'm4a'].includes(ext)) {
 						mediaElement = document.createElement("audio");
-						mediaElement.src = url;
+						mediaElement.src = "file?file=" + url + "&identity="+ chatId;
 						mediaElement.setAttribute("style", "margin-top:8px;");
 						mediaElement.controls = true;
 					} else if (['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(ext)) {
 						mediaElement = document.createElement('img');
-						mediaElement.src = url;
+						mediaElement.src = "file?file=" + url + "&identity="+ chatId;
 						mediaElement.alt = 'Image';
 						mediaElement.setAttribute("style", "max-width:80%;margin-top:8px;border-radius:10px;");
 					} else {
 						const fileName = url.split('/').pop();
 						mediaElement = document.createElement('a');
-						mediaElement.href = url;
+						mediaElement.href = "file?file=" + url + "&identity="+ chatId;
 						mediaElement.target = 'Image';
 						mediaElement.setAttrbute("style", "display:block;margin-top:8px;color:#f0f0f0;");
 						mediaElement.innerText = `📄 ${fileName}`;
