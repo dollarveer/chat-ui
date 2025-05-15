@@ -65,8 +65,8 @@ function toggleMenu(btn) {
 	dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
 
 	const bubble = btn.closest('.bubbleWrapper');
-	const timestamp = new Date(bubble.dataset.timestamp);
-	const now = new Date();
+	const timestamp = new Date(bubble.dataset.timestamp + 'UTC').getTime();
+	const now = Date().now();
 	const DELETE_TIMEOUT = 2 * 60 * 60 * 1000;
 	const EDIT_TIMEOUT = 45 * 60 * 1000;
 	const timeDiff = now - timestamp;
@@ -250,6 +250,15 @@ function handleFiles(files) {
 	});
 }
 
+function formatLocalTime(serverTimestamp) {
+  const localDate = new Date(serverTimestamp + ' UTC');
+  return localDate.toLocaleString(undefined, {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  });
+}
+
 function renderAlias(sender_hash, your_hash, aliasMap, chatType) {
 	if (sender_hash === your_hash) return 'You';
 
@@ -394,9 +403,9 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 					} else {
 						const fileName = url.split('/').pop();
 						mediaElement = document.createElement('a');
-						mediaElement.href = "/public/file.php?file=" + url + "&identity="+ chatId;
-						mediaElement.target = 'Image';
-						mediaElement.setAttrbute("style", "display:block;margin-top:8px;color:#f0f0f0;");
+						mediaElement.href = "/public/file.php?file=" + encodeURIComponent(url) + "&identity=" + chatId;
+						mediaElement.target = '_blank';
+						mediaElement.setAttribute("style", "display:block;margin-top:8px;color:#f0f0f0;");
 						mediaElement.innerText = `📄 ${fileName}`;
 					}
 					bubble.appendChild(mediaElement);
@@ -420,7 +429,7 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 			}
 		}
 
-		// Set and finalize
+		
 		bubble.innerHTML += html;
 		bubble.appendChild(menu_button);
 		bubble.appendChild(dropDownMenu);
@@ -430,7 +439,7 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 
 		const timeLabel = document.createElement('span');
 		timeLabel.className = type;
-		timeLabel.textContent = new Date(msg.sent_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+		timeLabel.textContent = formatLocalTime(msg.sent_at)
 
 		wrapper.appendChild(aliasLabel);
 		wrapper.appendChild(container);
