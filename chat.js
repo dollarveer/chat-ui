@@ -378,23 +378,23 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 					let mediaElement;
 					if (['mp4', 'webm', 'ogg'].includes(ext)) {
 						mediaElement = document.createElement('video');
-						mediaElement.src = "file?file=" + url + "&identity="+ chatId;
+						mediaElement.src = "/public/file?file=" + url + "&identity="+ chatId;
 						mediaElement.setAttribute("style", "max-width:80%;margin-top:8px;");
 						mediaElement.controls = true;
 					} else if (['mp3', 'wav', 'm4a'].includes(ext)) {
 						mediaElement = document.createElement("audio");
-						mediaElement.src = "file?file=" + url + "&identity="+ chatId;
+						mediaElement.src = "/public/file?file=" + url + "&identity="+ chatId;
 						mediaElement.setAttribute("style", "margin-top:8px;");
 						mediaElement.controls = true;
 					} else if (['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(ext)) {
 						mediaElement = document.createElement('img');
-						mediaElement.src = "file?file=" + url + "&identity="+ chatId;
+						mediaElement.src = "/public/file?file=" + url + "&identity="+ chatId;
 						mediaElement.alt = 'Image';
 						mediaElement.setAttribute("style", "max-width:80%;margin-top:8px;border-radius:10px;");
 					} else {
 						const fileName = url.split('/').pop();
 						mediaElement = document.createElement('a');
-						mediaElement.href = "file?file=" + url + "&identity="+ chatId;
+						mediaElement.href = "/public/file?file=" + url + "&identity="+ chatId;
 						mediaElement.target = 'Image';
 						mediaElement.setAttrbute("style", "display:block;margin-top:8px;color:#f0f0f0;");
 						mediaElement.innerText = `📄 ${fileName}`;
