@@ -251,7 +251,7 @@ function handleFiles(files) {
 }
 
 function renderAlias(sender_hash, your_hash, aliasMap, chatType) {
-	//if (sender_hash === your_hash) return 'You';
+	if (sender_hash === your_hash) return 'You';
 
 	if (chatType === "Group") {
 		if (aliasMap.hasOwnProperty(sender_hash)) {
