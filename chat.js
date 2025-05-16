@@ -255,30 +255,18 @@ function handleFiles(files) {
 	});
 }
 
-function formatLocalTime(serverTimestamp, serverOffsetMinutes = -300) {
-  // Step 1: Break timestamp into date parts
-  const parts = serverTimestamp.split(/[- :]/);
-  const serverTimeUTC = Date.UTC(
-    Number(parts[0]),       // year
-    Number(parts[1]) - 1,   // month (0-indexed)
-    Number(parts[2]),       // day
-    Number(parts[3]),       // hour
-    Number(parts[4]),       // minute
-    Number(parts[5])        // second
+function formatLocalTime(serverTimestamp, serverZone = 'America/New_York') {
+  const { DateTime } = luxon;
+
+  const serverDate = DateTime.fromFormat(
+    serverTimestamp,
+    'yyyy-MM-dd HH:mm:ss',
+    { zone: serverZone }
   );
 
-  // Step 2: Convert to GMT (UTC+0) by adding the offset
-  const gmtMillis = serverTimeUTC + (serverOffsetMinutes * 60 * 1000);
+  const localDate = serverDate.setZone(DateTime.local().zoneName);
 
-  // Step 3: JS Date auto-adjusts from GMT to local timezone
-  const localTime = new Date(gmtMillis);
-
-  // Step 4: Return formatted local time
-  return localTime.toLocaleString('en-US', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true
-  });
+  return localDate.toLocaleString(DateTime.DATETIME_MED); // or .TIME_SIMPLE for just time
 }
 
 function renderAlias(sender_hash, your_hash, aliasMap, chatType) {
