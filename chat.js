@@ -258,15 +258,17 @@ function handleFiles(files) {
 function formatLocalTime(serverTimestamp, serverZone = 'America/New_York') {
   const { DateTime } = luxon;
 
-  const serverDate = DateTime.fromFormat(
-    serverTimestamp,
-    'yyyy-MM-dd HH:mm:ss',
-    { zone: serverZone }
-  );
+  // Step 1: Parse the server timestamp as server time
+  const serverDate = DateTime.fromFormat(serverTimestamp, 'yyyy-MM-dd HH:mm:ss', {
+    zone: serverZone
+  });
 
-  const localDate = serverDate.setZone(DateTime.local().zoneName);
+  // Step 2: Convert to the browser’s detected offset
+  const localZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const localDate = serverDate.setZone(localZone);
 
-  return localDate.toLocaleString(DateTime.DATETIME_MED); // or .TIME_SIMPLE for just time
+  // Step 3: Return clean local string
+  return localDate.toLocaleString(DateTime.DATETIME_MED); // or TIME_SIMPLE
 }
 
 function renderAlias(sender_hash, your_hash, aliasMap, chatType) {
