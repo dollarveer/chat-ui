@@ -1,4 +1,3 @@
-
 let new_chats = 0;
 let new_session = 0;
 
@@ -256,34 +255,32 @@ function handleFiles(files) {
 	});
 }
 
-function formatLocalTime(serverTimestamp) {
-  const SERVER_OFFSET_MINUTES = -300; // e.g. New York (UTC−5)
-
-  // 1. Parse as naive server time (local to server, not user)
+function formatLocalTime(serverTimestamp, serverOffsetMinutes = -300) {
+  // Split timestamp into components
   const parts = serverTimestamp.split(/[- :]/);
-  const serverMillis = Date.UTC(
-    parseInt(parts[0]),           // Year
-    parseInt(parts[1]) - 1,       // Month (0-indexed)
-    parseInt(parts[2]),           // Day
-    parseInt(parts[3] || 0),      // Hour
-    parseInt(parts[4] || 0),      // Minute
-    parseInt(parts[5] || 0)       // Second
+  const naiveUTC = Date.UTC(
+    Number(parts[0]),      // year
+    Number(parts[1]) - 1,  // month (0-indexed)
+    Number(parts[2]),      // day
+    Number(parts[3]),      // hour
+    Number(parts[4]),      // minute
+    Number(parts[5])       // second
   );
 
-  // 2. Adjust from server-local to true UTC time
-  const utcMillis = serverMillis + (SERVER_OFFSET_MINUTES * 60 * 1000);
+  // Convert server time to real UTC
+  const correctedUTC = naiveUTC + (serverOffsetMinutes * 60 * 1000);
 
-  // 3. Convert to user's local time
-  const localDate = new Date(utcMillis);
+  // Convert to user's local time
+  const localDate = new Date(correctedUTC);
 
-  // 4. Format output
+  // Format the result in clean readable format
   return localDate.toLocaleString('en-US', {
-	  weekday: "short",
     hour: '2-digit',
     minute: '2-digit',
     hour12: true
   });
 }
+
 function renderAlias(sender_hash, your_hash, aliasMap, chatType) {
 	if (sender_hash === your_hash) return 'You';
 
