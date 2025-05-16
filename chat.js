@@ -257,7 +257,7 @@ function handleFiles(files) {
 }
 
 function formatLocalTime(serverTimestamp) {
-  const SERVER_OFFSET_MINUTES = -300; // UTC−5 (New York standard time)
+  const SERVER_OFFSET_MINUTES = 300; // UTC−5 (New York standard time)
 
   // Treat serverTimestamp as a naive string in *server* time
   const serverDate = new Date(serverTimestamp); // Treated as local by JS
