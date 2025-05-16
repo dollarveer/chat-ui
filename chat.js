@@ -60,12 +60,18 @@ function toggleChatHeaderDropdown() {
 	menu.style.display = (menu.style.display === 'flex') ? 'none' : 'flex';
 }
 
+function getUnixMsFromServerTime(serverTimestamp) {
+const SERVER_OFFSET_MINUTES = -300;
+  const serverDate = new Date(serverTimestamp + 'Z');
+  return serverDate.getTime() + SERVER_OFFSET_MINUTES * 60 * 1000;
+}
+
 function toggleMenu(btn) {
 	const dropdown = btn.nextElementSibling;
 	dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
 
 	const bubble = btn.closest('.bubbleWrapper');
-	const timestamp = new Date(bubble.dataset.timestamp + 'UTC').getTime();
+	const timestamp = getUnixMsFromServerTime(bubble.dataset.timestamp);
 	const now = Date().now();
 	const DELETE_TIMEOUT = 2 * 60 * 60 * 1000;
 	const EDIT_TIMEOUT = 45 * 60 * 1000;
@@ -251,8 +257,11 @@ function handleFiles(files) {
 }
 
 function formatLocalTime(serverTimestamp) {
-  const localDate = new Date(serverTimestamp + ' UTC');
-  return localDate.toLocaleString(undefined, {
+  const SERVER_OFFSET_MINUTES = -300;
+  const serverDate = new Date(serverTimestamp + 'Z');
+  const correctedTime = new Date(serverDate.getTime() + SERVER_OFFSET_MINUTES * 60 * 1000);
+
+  return correctedTime.toLocaleString(undefined, {
     hour: '2-digit',
     minute: '2-digit',
     hour12: true
@@ -895,6 +904,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			const session = innerArray[0];
 			const newRow = tableBody.insertRow();
 
+			alert(session);
 			const idcell = newRow.insertCell(0);
 			idcell.textContent = session.identity;
 			idcell.className = "hidden";
