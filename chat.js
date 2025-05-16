@@ -902,33 +902,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	getTable();
 
-
 	function fillTable(sessions) {
-		const tableBody = document.getElementById('table-body');
+	const tableBody = document.getElementById('table-body');
+	tableBody.innerHTML = ''; // optional: clear previous rows
 
-		sessions.forEach(innerArray => {
-			const session = innerArray[0];
-			const newRow = tableBody.insertRow();
+	sessions.forEach(session => {
+		const newRow = tableBody.insertRow();
 
-			const idcell = newRow.insertCell(0);
-			idcell.textContent = session.identity;
-			idcell.className = "hidden";
+		const idcell = newRow.insertCell(0);
+		idcell.textContent = session.identity;
+		idcell.className = "hidden";
 
-			newRow.insertCell(1).textContent = session.name;
+		newRow.insertCell(1).textContent = session.name;
 
-			const statuscell = newRow.insertCell(2);
-			statuscell.textContent = session.status;
-			if (session.status === "pending") {
-				statuscell.className = "pending-status";
-			} else {
-				statuscell.className = "active-status";
-			}
+		const statuscell = newRow.insertCell(2);
+		statuscell.textContent = session.status;
+		statuscell.className = session.status === "pending" ? "pending-status" : "active-status";
 
-			newRow.insertCell(3).textContent = session.type;
-			newRow.insertCell(4).textContent = session.connected;
-			newRow.insertCell(5).textContent = session.time_left;
-			newRow.insertCell(6).textContent = session.chat_code;
-		});
+		newRow.insertCell(3).textContent = session.type;
+		newRow.insertCell(4).textContent = session.connected;
+		newRow.insertCell(5).textContent = session.time_left;
+		newRow.insertCell(6).textContent = session.chat_code;
+	});
 	}
 
 	function sendSessionData() {
