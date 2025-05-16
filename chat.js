@@ -616,7 +616,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	// Handle received message and add it to the chat
 	function handleSentMessage(id_hash, response) {
-		const sentMsg = JSON.parse(response);
+		const sentMsg = JSON.parse(decryptMessage(response, chatMessages[id_hash].chatPrint));
 		if (Array.isArray(sentMsg) && sentMsg.length > 0) {
 			chatMessages[id_hash].messages.push(...sentMsg);
 			chatMessages[id_hash].lastMessageId = sentMsg[sentMsg.length - 1].messageId;
@@ -910,7 +910,6 @@ document.addEventListener('DOMContentLoaded', () => {
 			const session = innerArray[0];
 			const newRow = tableBody.insertRow();
 
-			alert(session.chat_code);
 			const idcell = newRow.insertCell(0);
 			idcell.textContent = session.identity;
 			idcell.className = "hidden";
@@ -1388,7 +1387,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				document.getElementById("previewContainer").innerHTML = "";
 				selectedFiles = [];
 				cancelReply(event);
-				sendMessage(xhr.responseText.trim());
+				sendMessage(encryptMessage(xhr.responseText.trim(), chatMessages[currentIdentity].chatPrint));
 			} else {
 				alert("Send failed");
 			}
