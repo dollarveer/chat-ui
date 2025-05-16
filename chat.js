@@ -262,6 +262,7 @@ function formatLocalTime(serverTimestamp) {
   const correctedTime = new Date(serverDate.getTime() + SERVER_OFFSET_MINUTES * 60 * 1000);
 
   return correctedTime.toLocaleString(undefined, {
+    weekday: 'short',
     hour: '2-digit',
     minute: '2-digit',
     hour12: true
