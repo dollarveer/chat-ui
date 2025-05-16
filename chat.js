@@ -256,25 +256,25 @@ function handleFiles(files) {
 }
 
 function formatLocalTime(serverTimestamp, serverOffsetMinutes = -300) {
-  // Split timestamp into components
+  // Step 1: Break timestamp into date parts
   const parts = serverTimestamp.split(/[- :]/);
-  const naiveUTC = Date.UTC(
-    Number(parts[0]),      // year
-    Number(parts[1]) - 1,  // month (0-indexed)
-    Number(parts[2]),      // day
-    Number(parts[3]),      // hour
-    Number(parts[4]),      // minute
-    Number(parts[5])       // second
+  const serverTimeUTC = Date.UTC(
+    Number(parts[0]),       // year
+    Number(parts[1]) - 1,   // month (0-indexed)
+    Number(parts[2]),       // day
+    Number(parts[3]),       // hour
+    Number(parts[4]),       // minute
+    Number(parts[5])        // second
   );
 
-  // Convert server time to real UTC
-  const correctedUTC = naiveUTC + (serverOffsetMinutes * 60 * 1000);
+  // Step 2: Convert to GMT (UTC+0) by adding the offset
+  const gmtMillis = serverTimeUTC + (serverOffsetMinutes * 60 * 1000);
 
-  // Convert to user's local time
-  const localDate = new Date(correctedUTC);
+  // Step 3: JS Date auto-adjusts from GMT to local timezone
+  const localTime = new Date(gmtMillis);
 
-  // Format the result in clean readable format
-  return localDate.toLocaleString('en-US', {
+  // Step 4: Return formatted local time
+  return localTime.toLocaleString('en-US', {
     hour: '2-digit',
     minute: '2-digit',
     hour12: true
