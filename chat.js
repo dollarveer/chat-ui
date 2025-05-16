@@ -257,11 +257,11 @@ function handleFiles(files) {
 }
 
 function formatLocalTime(serverTimestamp) {
-  const SERVER_OFFSET_MINUTES = -300;
-  const serverDate = new Date(serverTimestamp + 'Z');
+  const SERVER_OFFSET_MINUTES = 300;
+  const serverDate = new Date(serverTimestamp);
   const correctedTime = new Date(serverDate.getTime() + SERVER_OFFSET_MINUTES * 60 * 1000);
 
-  return correctedTime.toLocaleString(undefined, {
+  return correctedTime.toLocaleString('en-US', {
     weekday: 'short',
     hour: '2-digit',
     minute: '2-digit',
@@ -905,7 +905,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			const session = innerArray[0];
 			const newRow = tableBody.insertRow();
 
-			alert(session);
+			alert(session.chat_code);
 			const idcell = newRow.insertCell(0);
 			idcell.textContent = session.identity;
 			idcell.className = "hidden";
