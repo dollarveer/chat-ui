@@ -257,11 +257,15 @@ function handleFiles(files) {
 }
 
 function formatLocalTime(serverTimestamp) {
-  const SERVER_OFFSET_MINUTES = 300;
-  const serverDate = new Date(serverTimestamp);
-  const correctedTime = new Date(serverDate.getTime() + SERVER_OFFSET_MINUTES * 60 * 1000);
+  const SERVER_OFFSET_MINUTES = -300; // UTC−5 (New York standard time)
 
-  return correctedTime.toLocaleString('en-US', {
+  // Treat serverTimestamp as a naive string in *server* time
+  const serverDate = new Date(serverTimestamp); // Treated as local by JS
+  const utcMillis = serverDate.getTime() - (SERVER_OFFSET_MINUTES * 60 * 1000); // Convert to UTC
+
+  const localDate = new Date(utcMillis); // Now JS will show it in user's local time
+
+  return localDate.toLocaleString('en-US', {
     weekday: 'short',
     hour: '2-digit',
     minute: '2-digit',
