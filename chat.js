@@ -302,6 +302,7 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 	if (!msgs || msgs.length === 0) return;
 
 	msgs.forEach(msg => {
+		msg = JSON.parse(decryptMessage(response, chatMessages[chatId].chatPrint));
 		const alias = renderAlias(msg.sender_hash, userhash, aliasMap, chatType);
 		if (chatType === "Group" && alias === false) return;
 		if (document.getElementById(`message-${msg.messageId}`)) return;
