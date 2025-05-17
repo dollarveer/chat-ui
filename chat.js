@@ -468,6 +468,79 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 	}
 }
 
+function updateMessageBubble(chatId, msg) {
+	const bubbleWrapper = document.getElementById(`message-${msg.messageId}`);
+	if (!bubbleWrapper) return;
+
+	const chatData = chatMessages[chatId];
+	if (!chatData) return;
+
+	const userhash = chatData.userHash;
+	const chatPrint = chatData.chatPrint;
+
+	const bubble = bubbleWrapper.querySelector('.ownBubble, .otherBubble');
+	if (!bubble) return;
+
+	// Clear existing content
+	bubble.innerHTML = '';
+
+	if (msg.is_deleted) {
+		bubble.innerText = "This message was deleted.";
+		bubble.classList.add('deleted-message');
+		return;
+	}
+
+	// Content
+	const content = document.createElement('p');
+	content.id = 'message-text-' + msg.messageId;
+	content.innerText = decryptMessage(msg.message_content, chatPrint);
+	bubble.appendChild(content);
+
+	if (msg.is_edited) {
+		const edited = document.createElement('span');
+		edited.innerText = ' (edited)';
+		bubble.appendChild(edited);
+	}
+
+	// Re-add media if any
+	if (msg.media_url) {
+		try {
+			const mediaFiles = JSON.parse(msg.media_url);
+			mediaFiles.forEach(url => {
+				const ext = url.split('.').pop().toLowerCase();
+				let el;
+
+				if (['mp4', 'webm', 'ogg'].includes(ext)) {
+					el = document.createElement('video');
+					el.src = `/public/file.php?file=${url}&identity=${chatId}`;
+					el.controls = true;
+					el.style = 'max-width:80%;margin-top:8px;';
+				} else if (['mp3', 'wav', 'm4a'].includes(ext)) {
+					el = document.createElement('audio');
+					el.src = `/public/file.php?file=${url}&identity=${chatId}`;
+					el.controls = true;
+					el.style = 'margin-top:8px;';
+				} else if (['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(ext)) {
+					el = document.createElement('img');
+					el.src = `/public/file.php?file=${url}&identity=${chatId}`;
+					el.alt = 'Image';
+					el.style = 'max-width:80%;margin-top:8px;border-radius:10px;';
+				} else {
+					const fileName = url.split('/').pop();
+					el = document.createElement('a');
+					el.href = `/public/file.php?file=${encodeURIComponent(url)}&identity=${chatId}`;
+					el.innerText = `📄 ${fileName}`;
+					el.target = '_blank';
+					el.style = 'display:block;margin-top:8px;color:#f0f0f0;';
+				}
+				bubble.appendChild(el);
+			});
+		} catch (e) {
+			console.warn("Media parse error:", e);
+		}
+	}
+}
+
 document.addEventListener('DOMContentLoaded', () => {
 
 
