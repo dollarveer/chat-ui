@@ -707,7 +707,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		statusTimeout = setTimeout(() => {
 			if (id_hash === currentIdentity) activityElement.innerText = "online";
-			chatMessages[id_hash].lastMessageId = "online";
+			chatMessages[id_hash].lastSeen = "online";
 		}, 2000);
 	}
 
@@ -721,7 +721,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		const activityElement = document.getElementById("header-user-activity");
 		if (status) {
 			if (id_hash === currentIdentity) activityElement.innerText = "online";
-			chatMessages[id_hash].lastMessageId = "online";
+			chatMessages[id_hash].lastSeen = "online";
 		} else {
 			if (id_hash === currentIdentity) activityElement.innerText = "Last seen: " + lastSeen;
 		}
