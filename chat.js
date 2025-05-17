@@ -690,7 +690,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	// Handle received message and add it to the chat
 	function handleSentMessage(id_hash, response) {
-		const sentMsg = JSON.parse(decryptMessage(response, chatMessages[id_hash].chatPrint));
+		const sentMsg = JSON.parse(response);
 		if (Array.isArray(sentMsg) && sentMsg.length > 0) {
 			chatMessages[id_hash].messages.push(...sentMsg);
 			chatMessages[id_hash].lastMessageId = sentMsg[sentMsg.length - 1].messageId;
