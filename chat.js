@@ -1382,7 +1382,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				document.getElementById("previewContainer").innerHTML = "";
 				selectedFiles = [];
 				cancelReply(event);
-				sendMessage(encryptMessage(xhr.responseText.trim(), chatMessages[currentIdentity].chatPrint));
+				sendMessage(xhr.responseText.trim());
 			} else {
 				alert("Send failed");
 			}
