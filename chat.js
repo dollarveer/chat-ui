@@ -1343,7 +1343,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					}
 					populateChatBubbles(currentIdentity);
 				} catch (e) {
-					alert(e + '\n\nFailed to load messages');
+					alert(e + '\n\nFailed to load messages\n\n'+xhr.responseText.trim());
 				}
 			} else if (xhr.responseText.trim() === "failed") {
 				if (!chatMessages[currentIdentity]) {
