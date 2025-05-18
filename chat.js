@@ -258,23 +258,20 @@ function handleFiles(files) {
 
 
 function formatLocalTime(mysqlTimestamp) {
-  // Step 1: Parse MySQL time into parts
-  const [datePart, timePart] = mysqlTimestamp.split(' ');
-  const [year, month, day] = datePart.split('-').map(Number);
-  const [hour, minute, second] = timePart.split(':').map(Number);
+  const nyDate = new Date(`${mysqlTimestamp} GMT-0700`);
+  const utcISOString = nyDate.toISOString();
 
-  // Step 2: Manually add 4 hours to shift from NY (UTC−4) to UTC
-  const utcDate = new Date(Date.UTC(year, month - 1, day, hour + 4, minute, second));
-
-  // Step 3: Format to local user time
-  return utcDate.toLocaleString('en-US', {
+  const utcDate = new Date(utcISOString); 
+  const formatted = utcDate.toLocaleString('en-US', {
     weekday: 'short',
     hour: '2-digit',
     minute: '2-digit',
     hour12: true,
     timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
   });
-}		
+
+  return formatted;
+}
 
 function renderAlias(sender_hash, your_hash, aliasMap, chatType) {
 	if (sender_hash === your_hash) return 'You';
