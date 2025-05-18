@@ -255,25 +255,19 @@ function handleFiles(files) {
 	});
 }
 
-function formatLocalTime(serverTimestamp, serverZone = 'America/New_York') {
-  const { DateTime } = luxon;
+function formatLocalTime(mysqlTimestamp, serverOffsetHours = -4) {
+  const utcMillis = new Date(mysqlTimestamp).getTime() - (serverOffsetHours * 60 * 60 * 1000);
+  const utcDate = new Date(utcMillis);
 
-  // Step 1: Parse the timestamp in the server's timezone
-  const serverDate = DateTime.fromFormat(
-    serverTimestamp,
-    'yyyy-MM-dd HH:mm:ss',
-    { zone: serverZone }
-  );
-
-  // Step 2: Get client time zone from browser
-  const localZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
-  // Step 3: Convert server time to client's local time
-  const localDate = serverDate.setZone(localZone);
-
-  // Step 4: Return formatted local time
-  return localDate.toLocaleString(DateTime.DATETIME_MED); // or TIME_SIMPLE
+  return new Intl.DateTimeFormat('en-US', {
+    weekday: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+  }).format(utcDate);
 }
+
 function renderAlias(sender_hash, your_hash, aliasMap, chatType) {
 	if (sender_hash === your_hash) return 'You';
 
