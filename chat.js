@@ -255,18 +255,35 @@ function handleFiles(files) {
 	});
 }
 
-function formatLocalTime(mysqlTimestamp, serverOffsetHours = -4) {
-  const utcMillis = new Date(mysqlTimestamp).getTime() - (serverOffsetHours * 60 * 60 * 1000);
-  const utcDate = new Date(utcMillis);
+function formatLocalTime(mysqlTimestamp) {
+  // Step 1: Parse timestamp as if it’s in New York
+  const [datePart, timePart] = mysqlTimestamp.split(' ');
+  const [year, month, day] = datePart.split('-');
+  const [hour, minute, second] = timePart.split(':');
 
-  return new Intl.DateTimeFormat('en-US', {
+  // Construct date as UTC from New York time by subtracting 4 hours
+  const utcDate = new Date(Date.UTC(
+    +year,
+    +month - 1,
+    +day,
+    +hour + 4, // shift NY to UTC (EDT = UTC−4)
+    +minute,
+    +second
+  ));
+
+  // Step 2: Convert to user's local time zone automatically
+  const userZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  const formatted = new Intl.DateTimeFormat('en-US', {
     weekday: 'short',
     hour: '2-digit',
     minute: '2-digit',
     hour12: true,
-    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+    timeZone: userZone
   }).format(utcDate);
-}
+
+  return formatted;
+}		
 
 function renderAlias(sender_hash, your_hash, aliasMap, chatType) {
 	if (sender_hash === your_hash) return 'You';
