@@ -59,22 +59,17 @@ function toggleChatHeaderDropdown() {
 	menu.style.display = (menu.style.display === 'flex') ? 'none' : 'flex';
 }
 
-function getUnixMsFromServerTime(serverTimestamp) {
-const SERVER_OFFSET_MINUTES = -300;
-  const serverDate = new Date(serverTimestamp + 'Z');
-  return serverDate.getTime() + SERVER_OFFSET_MINUTES * 60 * 1000;
-}
-
 function toggleMenu(btn) {
 	const dropdown = btn.nextElementSibling;
 	dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
 
 	const bubble = btn.closest('.bubbleWrapper');
-	const timestamp = getUnixMsFromServerTime(bubble.dataset.timestamp);
-	const now = Date().now();
+	const rawTimestamp = bubble.dataset.timestamp;
+	const serverDate = new Date(`${rawTimestamp} GMT-0700`);
+	const now = new Date();
 	const DELETE_TIMEOUT = 2 * 60 * 60 * 1000;
 	const EDIT_TIMEOUT = 45 * 60 * 1000;
-	const timeDiff = now - timestamp;
+	const timeDiff = now - serverDate;
 	const isSender = bubble.classList.contains("own");
 
 	if (isSender) {
@@ -258,8 +253,8 @@ function handleFiles(files) {
 
 
 function formatLocalTime(mysqlTimestamp) {
-  const nyDate = new Date(`${mysqlTimestamp} GMT-0700`);
-  const utcISOString = nyDate.toISOString();
+  const dbDate = new Date(`${mysqlTimestamp} GMT-0700`);
+  const utcISOString = dbDate.toISOString();
 
   const utcDate = new Date(utcISOString); 
   const formatted = utcDate.toLocaleString('en-US', {
