@@ -1002,6 +1002,11 @@ document.addEventListener('DOMContentLoaded', () => {
 		const chat_type = document.getElementById('chat_type').value;
 		const xhr = new XMLHttpRequest();
 
+		if((chat_code.length < 8 || chat_code.length > 52) || (session_code.length < 8 || session_code.length > 52)){
+			alert("Code length must be at least 8 characters and not more than 52");
+			return;
+		}
+
 		document.querySelectorAll('.chat-form').forEach(el => el.classList.add('hidden'));
 
 		xhr.open("POST", "dashboard.php", true);
@@ -1013,7 +1018,11 @@ document.addEventListener('DOMContentLoaded', () => {
 					const { identity } = result[0];
 					joinedSessionTable(identity + "-table", xhr.responseText.trim());
 				} catch (e) {
-					alert(xhr.responseText.trim());
+					if(xhr.responseText.trim().length > 100){
+						alert("Session expired, refresh page to continue.");
+					}else {
+						alert(xhr.responseText.trim());
+					}
 				}
 			}
 		};
