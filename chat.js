@@ -1018,7 +1018,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					const { identity } = result[0];
 					joinedSessionTable(identity + "-table", xhr.responseText.trim());
 				} catch (e) {
-					if(xhr.responseText.trim().length > 100){
+					if(xhr.responseText.trim().length > 500){
 						alert("Session expired, refresh page to continue.");
 					}else {
 						alert(xhr.responseText.trim());
