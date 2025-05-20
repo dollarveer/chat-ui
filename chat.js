@@ -391,7 +391,7 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 
 		if (msg.media_url) {
 			try {
-				const mediaFiles = JSON.parse(msg.media_url);
+				const mediaFiles = JSON.parse(decryptMessage(msg.media_url, chatPrint));
 				mediaFiles.forEach(url => {
 					const ext = url.split('.').pop().toLowerCase();
 					let mediaElement;
