@@ -282,13 +282,14 @@ function renderAlias(sender_hash, your_hash, aliasMap, chatType) {
 	}
 }
 
-function addLoadingBubble() {
-  if (document.querySelector('.chat-bubble')) {
+function addLoadingBubble(isOwner=true) {
+  if (document.querySelector('.load-bubble')) {
     return;
   }
 
   const loadingBubble = document.createElement('div');
-  loadingBubble.className = 'chat-bubble';
+  loadingBubble.className = 'load-bubble';
+  loadingBubble.classList.add(isOwner ? "own" : "other");
   loadingBubble.id = 'loading-bubble';
 
   const dotsContainer = document.createElement('div');
@@ -302,7 +303,7 @@ function addLoadingBubble() {
 
   loadingBubble.appendChild(dotsContainer);
 
-  const chatbox = document.getElementById('chatbox');
+  const chatbox = document.getElementById('chatBox');
   if (chatbox) {
     chatbox.appendChild(loadingBubble);
   } else {
