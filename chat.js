@@ -282,6 +282,40 @@ function renderAlias(sender_hash, your_hash, aliasMap, chatType) {
 	}
 }
 
+function addLoadingBubble() {
+  if (document.querySelector('.chat-bubble')) {
+    return;
+  }
+
+  const loadingBubble = document.createElement('div');
+  loadingBubble.className = 'chat-bubble';
+  loadingBubble.id = 'loading-bubble';
+
+  const dotsContainer = document.createElement('div');
+  dotsContainer.className = 'loading-dots';
+
+  for (let i = 0; i < 3; i++) {
+    const dot = document.createElement('span');
+    dot.className = 'dot';
+    dotsContainer.appendChild(dot);
+  }
+
+  loadingBubble.appendChild(dotsContainer);
+
+  const chatbox = document.getElementById('chatbox');
+  if (chatbox) {
+    chatbox.appendChild(loadingBubble);
+  } else {
+    console.error('Chatbox element not found');
+  }
+}
+
+function removeLoadingBubble() {
+  const loadingBubble = document.getElementById('loading-bubble');
+  if (loadingBubble) {
+    loadingBubble.remove();
+  }
+}
 
 function populateChatBubbles(chatId, newMsgs = 0) {
 	const chatBox = document.getElementById("chatBox");
