@@ -321,6 +321,7 @@ function removeLoadingBubble() {
 function populateChatBubbles(chatId, newMsgs = 0) {
 	const chatBox = document.getElementById("chatBox");
 	if (!chatId || !chatBox) return;
+	removeLoadingBubble();
 
 	const msgs = chatMessages[chatId].messages;
 	const userhash = chatMessages[chatId].userHash;
@@ -1473,8 +1474,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	document.getElementById("send-btn").addEventListener('click', () => {
 		const text = document.getElementById("chatInput").value.trim();
+		document.getElementById("chatInput").value = "";
 		if (!text && selectedFiles.length === 0) return;
 
+		addLoadingBubble(true);
 		const formData = new FormData();
 		formData.append("message_content", encryptMessage(text, chatMessages[currentIdentity].chatPrint));
 		formData.append("message_type", selectedFiles.length > 0 ? "media" : "text");
@@ -1490,13 +1493,14 @@ document.addEventListener('DOMContentLoaded', () => {
 		xhr.open("POST", "messaging.php", true);
 		xhr.onload = function () {
 			if (xhr.status === 200) {
-				document.getElementById("chatInput").value = "";
 				document.getElementById("previewContainer").innerHTML = "";
 				selectedFiles = [];
 				cancelReply(event);
 				sendMessage(xhr.responseText.trim());
 			} else {
 				alert("Send failed");
+				document.getElementById("chatInput").value = text;
+				removeLoadingBubble();
 			}
 		};
 		xhr.send(formData);
