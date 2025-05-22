@@ -400,7 +400,7 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 		if (msg.reply_to) {
 			const replyDiv = document.createElement('div');
 			const replyMsg = msgs.find(m => JSON.parse(decryptMessage(m, chatMessages[chatId].chatPrint)).messageId === msg.reply_to);
-alert("2-"+replyMsg);
+			replyMsg = decryptMessage(replyMsg, chatPrint);
 			if (replyMsg) {
 				const replyAlias = renderAlias(replyMsg.sender_hash, userhash, aliasMap, chatType);
 				if (replyAlias === false && chatType === "Group") return;
