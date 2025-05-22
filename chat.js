@@ -571,8 +571,6 @@ function updateMessageBubble(chatId, msg) {
 	}
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-
 
 	/************************ WEBSOCKET ***********************/
 
@@ -847,8 +845,6 @@ document.addEventListener('DOMContentLoaded', () => {
 		console.log(`Timer expired for ${identity_hash}`);
 	}
 
-	startCountdown()
-
 	function lockChat(id_hash) {
 		const tableBody = document.getElementById('table-body');
 
@@ -913,47 +909,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	const join_btn = document.getElementById('join-btn');
 	const chatBox = document.getElementById('chatBox');
 
-	document.querySelectorAll('.btn').forEach(btn => {
-		btn.addEventListener('click', (e) => {
-			e.preventDefault();
-			const form = document.getElementById('chat-input-form');
-			if (btn.hash === '#new_pair') {
-				document.querySelectorAll('.group-only').forEach(el => el.classList.add('hidden'));
-				document.querySelectorAll('.chat-form').forEach(el => el.classList.remove('hidden'));
-				clear_form();
-				document.getElementById('form-action-label').innerText = "New Pair";
-				document.getElementById('chat_type').value = "new_pair";
-				get_csrf_token();
-			} else if (btn.hash === '#resume_pair') {
-				document.querySelectorAll('.group-only').forEach(el => el.classList.add('hidden'));
-				document.querySelectorAll('.chat-form').forEach(el => el.classList.remove('hidden'));
-				clear_form();
-				document.getElementById('form-action-label').innerText = "Resume Pair";
-				document.getElementById('chat_type').value = "resume_pair";
-				get_csrf_token();
-			} else if (btn.hash === '#new_group') {
-				document.querySelectorAll('.group-only').forEach(el => el.classList.remove('hidden'));
-				document.querySelectorAll('.chat-form').forEach(el => el.classList.remove('hidden'));
-				clear_form();
-				document.getElementById('form-action-label').innerText = "New Group";
-				document.getElementById('chat_type').value = "new_group";
-				get_csrf_token();
-			} else if (btn.hash === '#resume_group') {
-				document.querySelectorAll('.group-only').forEach(el => el.classList.remove('hidden'));
-				document.querySelectorAll('.chat-form').forEach(el => el.classList.remove('hidden'));
-				clear_form();
-				document.getElementById('form-action-label').innerText = "Resume Group";
-				document.getElementById('chat_type').value = "resume_group";
-				get_csrf_token();
-			} else if (btn.hash === '#message_pair') {
-				document.querySelectorAll('.pair-chat-options').forEach(el => el.classList.remove('hidden'));
-				document.querySelectorAll('.main-chat-options').forEach(el => el.classList.add('hidden'));
-			} else if (btn.hash === '#message_group') {
-				document.querySelectorAll('.group-chat-options').forEach(el => el.classList.remove('hidden'));
-				document.querySelectorAll('.main-chat-options').forEach(el => el.classList.add('hidden'));
-			}
-		});
-	});
+	
 
 	document.querySelectorAll('.join-create-back-btn').forEach(btn => {
 		btn.addEventListener('click', (e) => {
@@ -1002,8 +958,6 @@ document.addEventListener('DOMContentLoaded', () => {
 		};
 		xhr.send('existing=true');
 	}
-
-	getTable();
 
 	function fillTable(sessions) {
 	const tableBody = document.getElementById('table-body');
@@ -1381,7 +1335,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					}
 					populateChatBubbles(currentIdentity);
 				} catch (e) {
-					alert(e + '\n\nFailed to load messages\n\n'+xhr.responseText.trim());
+					alert('Failed to load messages');
 				}
 			} else if (xhr.responseText.trim() === "failed") {
 				if (!chatMessages[currentIdentity]) {
@@ -1544,6 +1498,52 @@ document.addEventListener('DOMContentLoaded', () => {
 			document.getElementById('chatHeaderDropdownMenu').style.display = 'none';
 		}
 	});
+
+document.addEventListener('DOMContentLoaded', () => {
+	document.querySelectorAll('.btn').forEach(btn => {
+		btn.addEventListener('click', (e) => {
+			e.preventDefault();
+			const form = document.getElementById('chat-input-form');
+			if (btn.hash === '#new_pair') {
+				document.querySelectorAll('.group-only').forEach(el => el.classList.add('hidden'));
+				document.querySelectorAll('.chat-form').forEach(el => el.classList.remove('hidden'));
+				clear_form();
+				document.getElementById('form-action-label').innerText = "New Pair";
+				document.getElementById('chat_type').value = "new_pair";
+				get_csrf_token();
+			} else if (btn.hash === '#resume_pair') {
+				document.querySelectorAll('.group-only').forEach(el => el.classList.add('hidden'));
+				document.querySelectorAll('.chat-form').forEach(el => el.classList.remove('hidden'));
+				clear_form();
+				document.getElementById('form-action-label').innerText = "Resume Pair";
+				document.getElementById('chat_type').value = "resume_pair";
+				get_csrf_token();
+			} else if (btn.hash === '#new_group') {
+				document.querySelectorAll('.group-only').forEach(el => el.classList.remove('hidden'));
+				document.querySelectorAll('.chat-form').forEach(el => el.classList.remove('hidden'));
+				clear_form();
+				document.getElementById('form-action-label').innerText = "New Group";
+				document.getElementById('chat_type').value = "new_group";
+				get_csrf_token();
+			} else if (btn.hash === '#resume_group') {
+				document.querySelectorAll('.group-only').forEach(el => el.classList.remove('hidden'));
+				document.querySelectorAll('.chat-form').forEach(el => el.classList.remove('hidden'));
+				clear_form();
+				document.getElementById('form-action-label').innerText = "Resume Group";
+				document.getElementById('chat_type').value = "resume_group";
+				get_csrf_token();
+			} else if (btn.hash === '#message_pair') {
+				document.querySelectorAll('.pair-chat-options').forEach(el => el.classList.remove('hidden'));
+				document.querySelectorAll('.main-chat-options').forEach(el => el.classList.add('hidden'));
+			} else if (btn.hash === '#message_group') {
+				document.querySelectorAll('.group-chat-options').forEach(el => el.classList.remove('hidden'));
+				document.querySelectorAll('.main-chat-options').forEach(el => el.classList.add('hidden'));
+			}
+		});
+	});
+	
+	startCountdown();
+	getTable();
 
 	setInterval(() => {
 		updateLastSeen(currentIdentity);
