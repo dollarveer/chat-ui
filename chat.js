@@ -332,7 +332,7 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 	if (!msgs || msgs.length === 0) return;
 
 	msgs.forEach(msg => {
-		msg = JSON.parse(decryptMessage(msg, chatMessages[chatId].chatPrint));
+		msg = JSON.parse(decryptMessage(msg, chatMessages[chatId].chatPrint).trim());
 		const alias = renderAlias(msg.sender_hash, userhash, aliasMap, chatType);
 		if (chatType === "Group" && alias === false) return;
 		if (document.getElementById(`message-${msg.messageId}`)) return;
@@ -400,7 +400,7 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 		if (msg.reply_to) {
 			const replyDiv = document.createElement('div');
 			let replyMsg = msgs.find(m => JSON.parse(decryptMessage(m, chatMessages[chatId].chatPrint)).messageId === msg.reply_to);
-			replyMsg = decryptMessage(replyMsg, chatPrint);
+			replyMsg = JSON.parse(decryptMessage(replyMsg, chatPrint).trim());
 			if (replyMsg) {
 				const replyAlias = renderAlias(replyMsg.sender_hash, userhash, aliasMap, chatType);
 				if (replyAlias === false && chatType === "Group") return;
@@ -408,10 +408,8 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 				const replyText = replyMsg.message_content ? replyMsg.message_content : '[Original message]';
 				replyDiv.setAttribute("onclick", `scrollToOriginalMessage(${replyMsg.messageId})`);
 				replyDiv.setAttribute("style", `font-size:13px;color:#ccc;margin-bottom:5px;margin-right: 20px; border-left:2px solid #aaa;padding-left:8px;`);
-				replyDiv.innerHTML = ` ↪ <strong>${replyAlias}:</strong>${replyText}</br> ${decryptMessage(replyText, chatPrint)}`;
+				replyDiv.innerHTML = ` ↪ <strong>${replyAlias}:</strong></br> ${decryptMessage(replyText, chatPrint)}`;
 				bubble.appendChild(replyDiv);
-
-				alert(replyMsg);
 			}
 		}
 
