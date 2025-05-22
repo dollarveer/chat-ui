@@ -397,8 +397,9 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 		let html = '';
 
 		// Reply preview
+		alert("1-"+msg.reply_to);
 		if (msg.reply_to) {
-
+alert("2-"+msg.reply_to);
 			const replyDiv = document.createElement('div');
 			const replyMsg = msgs.find(m => m.messageId === msg.reply_to);
 
@@ -1495,9 +1496,8 @@ document.addEventListener('DOMContentLoaded', () => {
 			if (xhr.status === 200) {
 				document.getElementById("previewContainer").innerHTML = "";
 				selectedFiles = [];
-				//cancelReply(event);
+				cancelReply(event);
 				sendMessage(xhr.responseText.trim());
-				alert(currentReplyMessageId);
 			} else {
 				alert("Send failed");
 				document.getElementById("chatInput").value = text;
