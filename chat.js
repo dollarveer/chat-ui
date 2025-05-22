@@ -397,12 +397,10 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 		let html = '';
 
 		// Reply preview
-		alert("1-"+msg.reply_to);
 		if (msg.reply_to) {
-alert("2-"+msg.reply_to);
 			const replyDiv = document.createElement('div');
 			const replyMsg = msgs.find(m => m.messageId === msg.reply_to);
-
+alert("2-"+replyMsg);
 			if (replyMsg) {
 				const replyAlias = renderAlias(replyMsg.sender_hash, userhash, aliasMap, chatType);
 				if (replyAlias === false && chatType === "Group") return;
