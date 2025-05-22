@@ -405,7 +405,7 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 				const replyAlias = renderAlias(replyMsg.sender_hash, userhash, aliasMap, chatType);
 				if (replyAlias === false && chatType === "Group") return;
 
-				const replyText = replyMsg.message_content ? replyMsg.message_content : '[Original message]';;
+				const replyText = replyMsg.message_content ? decryptMessage(replyMsg.message_content, chatPrint) : '[Original message]';;
 				replyDiv.setAttribute("onclick", `scrollToOriginalMessage(${replyMsg.messageId})`);
 				replyDiv.setAttribute("style", `font-size:13px;color:#ccc;margin-bottom:5px;margin-right: 20px; border-left:2px solid #aaa;padding-left:8px;`);
 				replyDiv.innerHTML = ` ↪ <strong>${replyAlias}:</strong></br> ${decryptMessage(replyText, chatPrint)}`;
