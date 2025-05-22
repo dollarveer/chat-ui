@@ -1497,6 +1497,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				selectedFiles = [];
 				cancelReply(event);
 				sendMessage(xhr.responseText.trim());
+				alert(currentReplyMessageId);
 			} else {
 				alert("Send failed");
 				document.getElementById("chatInput").value = text;
