@@ -1495,7 +1495,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			if (xhr.status === 200) {
 				document.getElementById("previewContainer").innerHTML = "";
 				selectedFiles = [];
-				cancelReply(event);
+				//cancelReply(event);
 				sendMessage(xhr.responseText.trim());
 				alert(currentReplyMessageId);
 			} else {
