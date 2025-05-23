@@ -170,7 +170,7 @@ function deleteMessage(button, id) {
 				if (xhr.responseText.trim() === "success") {
 					const bubble = document.getElementById(`message-${messageId}`);
 				if(bubble) bubble.remove();
-				const content = encryptMessage("This message was deleted.", chatMessages[currentIdentity].chatPrint);
+				const content = encryptMessage("[deleted]", chatMessages[currentIdentity].chatPrint);
 				sendUpdatedMessage("delete", messageId, content);
 				}
 			} catch (e) {
@@ -225,8 +225,6 @@ function handleFiles(files) {
 		reader.readAsDataURL(file);
 	});
 }
-
-
 
 function formatLocalTime(mysqlTimestamp) {
   const dbDate = new Date(`${mysqlTimestamp} GMT-0700`);
@@ -299,6 +297,7 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 	const chatBox = document.getElementById("chatBox");
 	if (!chatId || !chatBox) return;
 	removeLoadingBubble();
+	chatBox.innerHTML = "";
 
 	const msgs = chatMessages[chatId].messages;
 	const userhash = chatMessages[chatId].userHash;
@@ -312,7 +311,6 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 		msg = JSON.parse(decryptMessage(msg, chatMessages[chatId].chatPrint).trim());
 		const alias = renderAlias(msg.sender_hash, userhash, aliasMap, chatType);
 		if (chatType === "Group" && alias === false) return;
-		if (document.getElementById(`message-${msg.messageId}`)) return;
 
 		const type = msg.sender_hash === userhash ? 'own' : 'other';
 
@@ -638,36 +636,36 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 		if (id_hash === currentIdentity) populateChatBubbles(currentIdentity);
 	}
 
-	function handleUpdatedMessage(id_hash, action, msgId, content) {
-		switch(action){
-			case "edit":
-				if (chatMessages[id_hash]) {
-					let msg = chatMessages[id_hash].messages.find(m =>  JSON.parse(decryptMessage(m, chatMessages[id_hash].chatPrint)).messageId === msgId);
-					if (msg) {
-						msg = JSON.parse(decryptMessage(msg, chatMessages[id_hash].chatPrint));
-						msg.is_edited = 1;
-						msg.message_content = content;
-						msg = encryptMessage(JSON.stringify(msg), chatMessages[id_hash].chatPrint);
-					}
-				}
-				break;
-			case "delete":
-				if (chatMessages[id_hash]) {
-					let msg = chatMessages[id_hash].messages.find(m =>  JSON.parse(decryptMessage(m, chatMessages[id_hash].chatPrint)).messageId === msgId);
-					if (msg) {
-						msg = JSON.parse(decryptMessage(msg, chatMessages[id_hash].chatPrint));
-						msg.is_deleted = 1;
-						msg.message_content = content;
-						msg = encryptMessage(JSON.stringify(msg), chatMessages[id_hash].chatPrint);
-					}
-				}
-				break;
-			default:
-				return;
-		}
+	function handleUpdatedMessage(id_hash, action, msgId, newContent) {
+	if (!chatMessages[id_hash] || !chatMessages[id_hash].messages) return;
 
-		if (id_hash === currentIdentity) populateChatBubbles(currentIdentity);
+	const messages = chatMessages[id_hash].messages;
+	const key = chatMessages[id_hash].chatPrint;
+
+	for (let i = 0; i < messages.length; i++) {
+		let decryptedMessage = JSON.parse(decryptMessage(messages[i], key));
+
+		if (decryptedMessage.messageId === msgId) {
+			switch (action) {
+				case "edit":
+					decryptedMessage.message_content = encryptMessage(newContent, key); // re-encrypt content
+					decryptedMessage.is_edited = 1;
+					break;
+				case "delete":
+					decryptedMessage.message_content = encryptMessage("[deleted]", key);
+					decryptedMessage.is_deleted = 1;
+					break;
+				default:
+					return;
+			}
+
+			messages[i] = encryptMessage(JSON.stringify(decryptedMessage), key);
+			break;
+		}
 	}
+
+	if (id_hash === currentIdentity) populateChatBubbles(currentIdentity, 1);
+}
 
 	// Update UI for typing/editing status with timeout
 	function handleTypingOrEditing(action, id_hash) {
@@ -686,7 +684,6 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 		updateTable(JSON.parse(response));
 	}
 
-	// Update the user activity status to online or show last seen
 	function isOnline(status, id_hash, lastSeen = "") {
 		const activityElement = document.getElementById("header-user-activity");
 		if (status) {
@@ -708,7 +705,6 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 		}
 	}
 
-	// Format time ago for last seen status
 	function formatLastSeen(id_hash, timestamp) {
 		const now = Date.now();
 		const diff = Math.floor((now - timestamp) / 1000);
@@ -851,17 +847,6 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 	const userCountSpan = document.getElementById('user-count');
 	const join_btn = document.getElementById('join-btn');
 	const chatBox = document.getElementById('chatBox');
-
-	
-
-	document.querySelectorAll('.join-create-back-btn').forEach(btn => {
-		btn.addEventListener('click', (e) => {
-			document.querySelectorAll('.main-chat-options').forEach(el => el.classList.remove('hidden'));
-			document.querySelectorAll('.chat-form').forEach(el => el.classList.add('hidden'));
-			document.querySelectorAll('.group-chat-options').forEach(el => el.classList.add('hidden'));
-			document.querySelectorAll('.pair-chat-options').forEach(el => el.classList.add('hidden'));
-		});
-	});
 
 	function get_csrf_token(){
 		const xhr = new XMLHttpRequest();
