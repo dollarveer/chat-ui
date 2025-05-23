@@ -1390,28 +1390,35 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 	});
 
 	document.getElementById("search-input").addEventListener('input', function () {
-  		const searchString = this.value.toLowerCase().trim();
-  		const bubbles = document.querySelectorAll('.ownBubble, .otherBubble');
+  const searchString = this.value.toLowerCase().trim();
 
-  		bubbles.forEach(bubble => {
-    			const textElement = bubble.querySelector('p');
-    			if (!textElement) return;
+  // Each message is inside this wrapper
+  const wrappers = document.querySelectorAll('.bubbleWrapper');
 
-    			const originalText = textElement.textContent;
-    			textElement.innerHTML = originalText;
-    			bubble.style.display = "block";
+  wrappers.forEach(wrapper => {
+    const textElement = wrapper.querySelector('.ownBubble p, .otherBubble p');
 
-    			if (searchString) {
-      				const text = originalText.toLowerCase();
-      				if (text.includes(searchString)) {
-        				const regex = new RegExp(`(${searchString})`, 'gi');
-        				textElement.innerHTML = originalText.replace(regex, '<span class="highlight-search">$1</span>');
-      				} else {
-        				bubble.style.display = "none";
-      				}
-    			}
-  		});
-	});
+    // If there's no text content to search (e.g. deleted/media), keep showing
+    if (!textElement) {
+      wrapper.style.display = searchString ? 'none' : 'block';
+      return;
+    }
+
+    const originalText = textElement.textContent;
+    textElement.innerHTML = originalText; // reset highlight
+    wrapper.style.display = 'block'; // default: show
+
+    if (searchString) {
+      const text = originalText.toLowerCase();
+      if (text.includes(searchString)) {
+        const regex = new RegExp(`(${searchString})`, 'gi');
+        textElement.innerHTML = originalText.replace(regex, '<span class="highlight-search">$1</span>');
+      } else {
+        wrapper.style.display = 'none'; // hide whole row
+      }
+    }
+  });
+});
 
 	document.addEventListener('click', function (e) {
 		if (!e.target.matches('.menu-button')) {
