@@ -144,8 +144,6 @@ function saveEdit() {
 	xhr.onload = function () {
 		if (xhr.status === 200) {
 			if (xhr.responseText.trim() === "success") {
-				const bubble = document.getElementById(`message-${currentEditMessageId}`);
-				if(bubble) bubble.remove();
 				sendUpdatedMessage("edit", currentEditMessageId, updatedText);
 				cancelEdit();
 				alert("Edited");
@@ -168,13 +166,11 @@ function deleteMessage(button, id) {
 		if (xhr.readyState === 4 && xhr.status === 200) {
 			try {
 				if (xhr.responseText.trim() === "success") {
-					const bubble = document.getElementById(`message-${messageId}`);
-				if(bubble) bubble.remove();
-				const content = "[deleted]";
-				sendUpdatedMessage("delete", messageId, content);
+					const content = "[deleted]";
+					sendUpdatedMessage("delete", messageId, content);
 				}
 			} catch (e) {
-
+				alert(e);
 			}
 		}
 	};
@@ -335,8 +331,6 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 		const icon = document.createElement('img');
 		icon.className = 'inlineIcon';
 
-
-		// Deleted message
 		if (msg.is_deleted) {
 			bubble.innerText = "This message was deleted.";
 			bubble.classList.add('deleted-message');
@@ -371,7 +365,6 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 
 		let html = '';
 
-		// Reply preview
 		if (msg.reply_to) {
 			const replyDiv = document.createElement('div');
 			let replyMsg = msgs.find(m => JSON.parse(decryptMessage(m, chatMessages[chatId].chatPrint)).messageId === msg.reply_to);
@@ -633,7 +626,7 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 			chatMessages[id_hash].lastMessageId = sentMsg[sentMsg.length - 1].messageId;
 		}
 
-		if (id_hash === currentIdentity) populateChatBubbles(currentIdentity);
+		if (id_hash === currentIdentity) populateChatBubbles(currentIdentity, 1);
 	}
 
 	function handleUpdatedMessage(id_hash, action, msgId, newContent) {
@@ -667,7 +660,6 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 	if (id_hash === currentIdentity) populateChatBubbles(currentIdentity, 1);
 }
 
-	// Update UI for typing/editing status with timeout
 	function handleTypingOrEditing(action, id_hash) {
 		const activityElement = document.getElementById("header-user-activity");
 		clearTimeout(statusTimeout);
@@ -679,7 +671,6 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 		}, 2000);
 	}
 
-	// Update the chat table session (e.g., when user joins a specific chat group)
 	function handleJoinedSessionTable(response) {
 		updateTable(JSON.parse(response));
 	}
@@ -1467,6 +1458,15 @@ document.addEventListener('DOMContentLoaded', () => {
 				document.querySelectorAll('.group-chat-options').forEach(el => el.classList.remove('hidden'));
 				document.querySelectorAll('.main-chat-options').forEach(el => el.classList.add('hidden'));
 			}
+		});
+	});
+
+	document.querySelectorAll('.join-create-back-btn').forEach(btn => {
+		btn.addEventListener('click', (e) => {
+			document.querySelectorAll('.main-chat-options').forEach(el => el.classList.remove('hidden'));
+			document.querySelectorAll('.chat-form').forEach(el => el.classList.add('hidden'));
+			document.querySelectorAll('.group-chat-options').forEach(el => el.classList.add('hidden'));
+			document.querySelectorAll('.pair-chat-options').forEach(el => el.classList.add('hidden'));
 		});
 	});
 	
