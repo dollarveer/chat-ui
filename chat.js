@@ -170,7 +170,7 @@ function deleteMessage(button, id) {
 				if (xhr.responseText.trim() === "success") {
 					const bubble = document.getElementById(`message-${messageId}`);
 				if(bubble) bubble.remove();
-				const content = encryptMessage("[deleted]", chatMessages[currentIdentity].chatPrint);
+				const content = "[deleted]";
 				sendUpdatedMessage("delete", messageId, content);
 				}
 			} catch (e) {
@@ -648,11 +648,11 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 		if (decryptedMessage.messageId === msgId) {
 			switch (action) {
 				case "edit":
-					decryptedMessage.message_content = encryptMessage(newContent, key); // re-encrypt content
+					decryptedMessage.message_content = newContent;
 					decryptedMessage.is_edited = 1;
 					break;
 				case "delete":
-					decryptedMessage.message_content = encryptMessage("[deleted]", key);
+					decryptedMessage.message_content = newContent;
 					decryptedMessage.is_deleted = 1;
 					break;
 				default:
