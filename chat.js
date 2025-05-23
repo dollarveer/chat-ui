@@ -647,6 +647,7 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 				case "delete":
 					decryptedMessage.message_content = newContent;
 					decryptedMessage.is_deleted = 1;
+					alert(4444);
 					break;
 				default:
 					return;
