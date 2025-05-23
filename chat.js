@@ -131,8 +131,8 @@ function cancelEdit() {
 }
 
 function saveEdit() {
-	const updatedText = document.getElementById("edit-input").value;
-
+	let updatedText = document.getElementById("edit-input").value;
+	updatedText = encryptMessage(updatedText, chatMessages[currentIdentity].chatPrint));
 	const formData = new FormData();
 	formData.append("new_content", updatedText);
 	formData.append("identity", currentIdentity);
@@ -144,24 +144,9 @@ function saveEdit() {
 	xhr.onload = function () {
 		if (xhr.status === 200) {
 			if (xhr.responseText.trim() === "success") {
-				if (chatMessages[currentIdentity]) {
-					const msg = chatMessages[currentIdentity].messages.find(m => m.messageId === currentEditMessageId);
-					if (msg) {
-						msg.is_edited = 1;
-						msg.message_content = updatedText;
-					}
-				}
-				const messageElement = document.getElementById(`message-text-${currentEditMessageId}`);
-
 				const bubble = document.getElementById(`message-${currentEditMessageId}`);
-				if (bubble.querySelector('.edited-label')) bubble.querySelector('.edited-label').remove();
-
-				messageElement.innerText = updatedText;
-				const editedSpan = document.createElement('span');
-				editedSpan.className = 'edited-label';
-				editedSpan.innerText = ' (edited)';
-				messageElement.insertAdjacentElement('afterend', editedSpan);
-
+				if(bubble) bubble.remove();
+				sendUpdatedMessage("edit", currentEditMessageId, updatedText);
 				cancelEdit();
 				alert("Edited");
 			}
@@ -183,19 +168,10 @@ function deleteMessage(button, id) {
 		if (xhr.readyState === 4 && xhr.status === 200) {
 			try {
 				if (xhr.responseText.trim() === "success") {
-					if (chatMessages[currentIdentity]) {
-						const msg = chatMessages[currentIdentity].messages.find(m => m.messageId === messageId);
-						if (msg) {
-							msg.is_deleted = 1;
-							msg.message_content = "This message was deleted.";
-						}
-
-						document.getElementById('message-text-' + messageId).innerText = "";
-						bubble.innerText = "This message was deleted.";
-						bubble.classList.add("deleted-message");
-
-						alert("Deleted");
-					}
+					const bubble = document.getElementById(`message-${messageId}`);
+				if(bubble) bubble.remove();
+				const content = encryptMessage("This message was deleted.", chatMessages[currentIdentity].chatPrint));
+				sendUpdatedMessage("edit", messageId, content);
 				}
 			} catch (e) {
 
@@ -289,6 +265,7 @@ function addLoadingBubble(isOwner=true) {
 
   const loadingBubble = document.createElement('div');
   loadingBubble.className = 'load-bubble';
+  loadingBubble.classList.add("bubbleWrapper");
   loadingBubble.classList.add(isOwner ? "own" : "other");
   loadingBubble.id = 'loading-bubble';
 
@@ -405,10 +382,10 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 				const replyAlias = renderAlias(replyMsg.sender_hash, userhash, aliasMap, chatType);
 				if (replyAlias === false && chatType === "Group") return;
 
-				const replyText = replyMsg.message_content ? replyMsg.message_content : '[Original message]';
+				const replyText = replyMsg.message_content ? decryptMessage(replyMsg.message_content, chatPrint) : '[Original message]';
 				replyDiv.setAttribute("onclick", `scrollToOriginalMessage(${replyMsg.messageId})`);
 				replyDiv.setAttribute("style", `font-size:13px;color:#ccc;margin-bottom:5px;margin-right: 20px; border-left:2px solid #aaa;padding-left:8px;`);
-				replyDiv.innerHTML = ` ↪ <strong>${replyAlias}:</strong></br> ${decryptMessage(replyText, chatPrint)}`;
+				replyDiv.innerHTML = ` ↪ <strong>${replyAlias}:</strong></br> ${replyText}`;
 				bubble.appendChild(replyDiv);
 			}
 		}
@@ -498,80 +475,6 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 	}
 }
 
-function updateMessageBubble(chatId, msg) {
-	const bubbleWrapper = document.getElementById(`message-${msg.messageId}`);
-	if (!bubbleWrapper) return;
-
-	const chatData = chatMessages[chatId];
-	if (!chatData) return;
-
-	const userhash = chatData.userHash;
-	const chatPrint = chatData.chatPrint;
-
-	const bubble = bubbleWrapper.querySelector('.ownBubble, .otherBubble');
-	if (!bubble) return;
-
-	// Clear existing content
-	bubble.innerHTML = '';
-
-	if (msg.is_deleted) {
-		bubble.innerText = "This message was deleted.";
-		bubble.classList.add('deleted-message');
-		return;
-	}
-
-	// Content
-	const content = document.createElement('p');
-	content.id = 'message-text-' + msg.messageId;
-	content.innerText = decryptMessage(msg.message_content, chatPrint);
-	bubble.appendChild(content);
-
-	if (msg.is_edited) {
-		const edited = document.createElement('span');
-		edited.innerText = ' (edited)';
-		bubble.appendChild(edited);
-	}
-
-	// Re-add media if any
-	if (msg.media_url) {
-		try {
-			const mediaFiles = JSON.parse(msg.media_url);
-			mediaFiles.forEach(url => {
-				const ext = url.split('.').pop().toLowerCase();
-				let el;
-
-				if (['mp4', 'webm', 'ogg'].includes(ext)) {
-					el = document.createElement('video');
-					el.src = `/public/file.php?file=${url}&identity=${chatId}`;
-					el.controls = true;
-					el.style = 'max-width:80%;margin-top:8px;';
-				} else if (['mp3', 'wav', 'm4a'].includes(ext)) {
-					el = document.createElement('audio');
-					el.src = `/public/file.php?file=${url}&identity=${chatId}`;
-					el.controls = true;
-					el.style = 'margin-top:8px;';
-				} else if (['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(ext)) {
-					el = document.createElement('img');
-					el.src = `/public/file.php?file=${url}&identity=${chatId}`;
-					el.alt = 'Image';
-					el.style = 'max-width:80%;margin-top:8px;border-radius:10px;';
-				} else {
-					const fileName = url.split('/').pop();
-					el = document.createElement('a');
-					el.href = `/public/file.php?file=${encodeURIComponent(url)}&identity=${chatId}`;
-					el.innerText = `📄 ${fileName}`;
-					el.target = '_blank';
-					el.style = 'display:block;margin-top:8px;color:#f0f0f0;';
-				}
-				bubble.appendChild(el);
-			});
-		} catch (e) {
-			console.warn("Media parse error:", e);
-		}
-	}
-}
-
-
 	/************************ WEBSOCKET ***********************/
 
 	// WebSocket secure connection setup
@@ -613,12 +516,14 @@ function updateMessageBubble(chatId, msg) {
 		sendWS("leave_active_chat", { sender: sender_hash });
 	}
 
-	// Call this to send a message
+	function sendUpdatedMessage(action, id, content) {
+		sendWS("update_message", { action: action, messageId: id, message: content });
+	}
+
 	function sendMessage(content) {
 		sendWS("send_message", { message: content });
 	}
 
-	// Optional features
 	function typing(status) {
 		sendWS("typing", { isTyping: status });
 	}
@@ -661,6 +566,12 @@ function updateMessageBubble(chatId, msg) {
 					notifyMessage(msg.fingerprint);
 					//console.log("New message:", msg.payload.message);
 					break;
+				case "update_message":
+					isOnline(true, msg.identity_hash);
+					handleUpdatedMessage(msg.identity_hash, msg.payload.action, msg.payload.messageId, msg.payload.message);
+					notifyMessage(msg.fingerprint);
+					//console.log("Update message:", msg.payload.messageId);
+					break;
 				case "typing":
 					handleTypingOrEditing("typing", msg.identity_hash);
 					//console.log("Someone is typing...");
@@ -687,6 +598,7 @@ function updateMessageBubble(chatId, msg) {
 			}
 		} catch (e) {
 			console.error("Invalid message:", e);
+			alert(e);
 		}
 	};
 
@@ -721,6 +633,37 @@ function updateMessageBubble(chatId, msg) {
 		if (Array.isArray(sentMsg) && sentMsg.length > 0) {
 			chatMessages[id_hash].messages.push(...sentMsg);
 			chatMessages[id_hash].lastMessageId = sentMsg[sentMsg.length - 1].messageId;
+		}
+
+		if (id_hash === currentIdentity) populateChatBubbles(currentIdentity);
+	}
+
+	function handleUpdatedMessage(id_hash, action, msgId, content) {
+		switch(action){
+			case "edit":
+				if (chatMessages[id_hash]) {
+					const msg = chatMessages[id_hash].messages.find(m =>  JSON.parse(decryptMessage(m, chatMessages[id_hash].chatPrint)).messageId === msgId);
+					if (msg) {
+						msg = JSON.parse(decryptMessage(msg, chatMessages[id_hash].chatPrint));
+						msg.is_edited = 1;
+						msg.message_content = content;
+						msg = encryptMessage(JSON.stringfy(msg), chatMessages[id_hash].chatPrint);
+					}
+				}
+				break;
+			case "delete":
+				if (chatMessages[id_hash]) {
+					const msg = chatMessages[id_hash].messages.find(m =>  JSON.parse(decryptMessage(m, chatMessages[id_hash].chatPrint)).messageId === msgId);
+					if (msg) {
+						msg = JSON.parse(decryptMessage(msg, chatMessages[id_hash].chatPrint));
+						msg.is_deleted = 1;
+						msg.message_content = content;
+						msg = encryptMessage(JSON.stringfy(msg), chatMessages[id_hash].chatPrint);
+					}
+				}
+				break;
+			default:
+				return;
 		}
 
 		if (id_hash === currentIdentity) populateChatBubbles(currentIdentity);
