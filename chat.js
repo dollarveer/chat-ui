@@ -261,13 +261,11 @@ function addLoadingBubble(isOwner=true) {
   const loadingBubble = document.createElement('div');
   loadingBubble.className = 'load-bubble';
   loadingBubble.classList.add("bubbleWrapper");
-  const type = isOwner ? "own" : "other";
-  loadingBubble.classList.add(type);
+  loadingBubble.classList.add(isOwner ? "own" : "other");
   loadingBubble.id = 'loading-bubble';
 
   const dotsContainer = document.createElement('div');
   dotsContainer.className = 'loading-dots';
-  dotsContainer.classList.add(`${type}Bubble ${type}`);
 
   for (let i = 0; i < 3; i++) {
     const dot = document.createElement('span');
@@ -444,6 +442,7 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 					break;
 			}
 		}
+
 		
 		bubble.innerHTML += html;
 		bubble.appendChild(menu_button);
@@ -1392,7 +1391,7 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 
 	document.getElementById("search-input").addEventListener('input', function () {
 		const searchString = this.value.toLowerCase();
-		const bubbles = document.querySelectorAll('.bubbleWrapper');
+		const bubbles = document.querySelectorAll('.message-bubble');
 
 		bubbles.forEach(bubble => {
 			const textElement = bubble.querySelector('p');
