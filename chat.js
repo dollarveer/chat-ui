@@ -168,6 +168,7 @@ function deleteMessage(button, id) {
 				if (xhr.responseText.trim() === "success") {
 					const content = "[deleted]";
 					sendUpdatedMessage("delete", messageId, content);
+					alert(1111);
 				}
 			} catch (e) {
 				alert(e);
@@ -630,6 +631,7 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 	}
 
 	function handleUpdatedMessage(id_hash, action, msgId, newContent) {
+		alert(2222);
 	if (!chatMessages[id_hash] || !chatMessages[id_hash].messages) return;
 
 	const messages = chatMessages[id_hash].messages;
@@ -639,6 +641,7 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 		let decryptedMessage = JSON.parse(decryptMessage(messages[i], key));
 
 		if (decryptedMessage.messageId === msgId) {
+alert(333);
 			switch (action) {
 				case "edit":
 					decryptedMessage.message_content = newContent;
@@ -659,6 +662,7 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 	}
 
 	if (id_hash === currentIdentity) populateChatBubbles(currentIdentity, 1);
+alert(5555);
 }
 
 	function handleTypingOrEditing(action, id_hash) {
