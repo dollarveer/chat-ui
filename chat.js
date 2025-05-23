@@ -132,7 +132,7 @@ function cancelEdit() {
 
 function saveEdit() {
 	let updatedText = document.getElementById("edit-input").value;
-	updatedText = encryptMessage(updatedText, chatMessages[currentIdentity].chatPrint));
+	updatedText = encryptMessage(updatedText, chatMessages[currentIdentity].chatPrint);
 	const formData = new FormData();
 	formData.append("new_content", updatedText);
 	formData.append("identity", currentIdentity);
