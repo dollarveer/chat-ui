@@ -647,7 +647,7 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 						msg = JSON.parse(decryptMessage(msg, chatMessages[id_hash].chatPrint));
 						msg.is_edited = 1;
 						msg.message_content = content;
-						msg = encryptMessage(JSON.stringfy(msg), chatMessages[id_hash].chatPrint);
+						msg = encryptMessage(JSON.stringify(msg), chatMessages[id_hash].chatPrint);
 					}
 				}
 				break;
@@ -658,7 +658,7 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 						msg = JSON.parse(decryptMessage(msg, chatMessages[id_hash].chatPrint));
 						msg.is_deleted = 1;
 						msg.message_content = content;
-						msg = encryptMessage(JSON.stringfy(msg), chatMessages[id_hash].chatPrint);
+						msg = encryptMessage(JSON.stringify(msg), chatMessages[id_hash].chatPrint);
 					}
 				}
 				break;
