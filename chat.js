@@ -1392,29 +1392,25 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 	document.getElementById("search-input").addEventListener('input', function () {
   const searchString = this.value.toLowerCase().trim();
 
-  // Each message is inside this wrapper
   const wrappers = document.querySelectorAll('.bubbleWrapper');
 
   wrappers.forEach(wrapper => {
-    const textElement = wrapper.querySelector('.ownBubble p, .otherBubble p');
-
-    // If there's no text content to search (e.g. deleted/media), keep showing
-    if (!textElement) {
-      wrapper.style.display = searchString ? 'none' : 'block';
+    const p = wrapper.querySelector('p');
+    if (!p) {
+      wrapper.style.display = searchString ? 'none' : 'flex';
       return;
     }
 
-    const originalText = textElement.textContent;
-    textElement.innerHTML = originalText; // reset highlight
-    wrapper.style.display = 'block'; // default: show
+    const rawText = p.textContent;
+    p.textContent = rawText;
+    wrapper.style.display = 'flex';
 
     if (searchString) {
-      const text = originalText.toLowerCase();
-      if (text.includes(searchString)) {
+      if (rawText.toLowerCase().includes(searchString)) {
         const regex = new RegExp(`(${searchString})`, 'gi');
-        textElement.innerHTML = originalText.replace(regex, '<span class="highlight-search">$1</span>');
+        p.innerHTML = rawText.replace(regex, '<span class="highlight-search">$1</span>');
       } else {
-        wrapper.style.display = 'none'; // hide whole row
+        wrapper.style.display = 'none';
       }
     }
   });
