@@ -1390,24 +1390,27 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 	});
 
 	document.getElementById("search-input").addEventListener('input', function () {
-		const searchString = this.value.toLowerCase();
-		const bubbles = document.querySelectorAll('.message-bubble');
+  		const searchString = this.value.toLowerCase().trim();
+  		const bubbles = document.querySelectorAll('.ownBubble, .otherBubble');
 
-		bubbles.forEach(bubble => {
-			const textElement = bubble.querySelector('p');
-			const originalText = textElement.textContent;
-			textElement.innerHTML = originalText;
-			bubble.style.display = "block";
-			if (searchString) {
-				const text = originalText.toLowerCase();
-				if (text.includes(searchString)) {
-					const regex = new RegExp(`(${searchString})`, 'gi');
-					textElement.innerHTML = originalText.replace(regex, '<span class="highlight-search">$1</span>')
-				} else {
-					bubble.style.display = "none";
-				}
-			}
-		});
+  		bubbles.forEach(bubble => {
+    			const textElement = bubble.querySelector('p');
+    			if (!textElement) return;
+
+    			const originalText = textElement.textContent;
+    			textElement.innerHTML = originalText;
+    			bubble.style.display = "block";
+
+    			if (searchString) {
+      				const text = originalText.toLowerCase();
+      				if (text.includes(searchString)) {
+        				const regex = new RegExp(`(${searchString})`, 'gi');
+        				textElement.innerHTML = originalText.replace(regex, '<span class="highlight-search">$1</span>');
+      				} else {
+        				bubble.style.display = "none";
+      				}
+    			}
+  		});
 	});
 
 	document.addEventListener('click', function (e) {
