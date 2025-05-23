@@ -642,7 +642,7 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 		switch(action){
 			case "edit":
 				if (chatMessages[id_hash]) {
-					const msg = chatMessages[id_hash].messages.find(m =>  JSON.parse(decryptMessage(m, chatMessages[id_hash].chatPrint)).messageId === msgId);
+					let msg = chatMessages[id_hash].messages.find(m =>  JSON.parse(decryptMessage(m, chatMessages[id_hash].chatPrint)).messageId === msgId);
 					if (msg) {
 						msg = JSON.parse(decryptMessage(msg, chatMessages[id_hash].chatPrint));
 						msg.is_edited = 1;
@@ -653,7 +653,7 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 				break;
 			case "delete":
 				if (chatMessages[id_hash]) {
-					const msg = chatMessages[id_hash].messages.find(m =>  JSON.parse(decryptMessage(m, chatMessages[id_hash].chatPrint)).messageId === msgId);
+					let msg = chatMessages[id_hash].messages.find(m =>  JSON.parse(decryptMessage(m, chatMessages[id_hash].chatPrint)).messageId === msgId);
 					if (msg) {
 						msg = JSON.parse(decryptMessage(msg, chatMessages[id_hash].chatPrint));
 						msg.is_deleted = 1;
