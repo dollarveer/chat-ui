@@ -158,13 +158,14 @@ function saveEdit() {
 function deleteMessage(button, id) {
 	const bubble = button.closest('.message-bubble');
 	const messageId = id;
-
+	alert(0000);
 	const xhr = new XMLHttpRequest();
 	xhr.open("POST", "messaging.php", true);
 	xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 	xhr.onreadystatechange = () => {
 		if (xhr.readyState === 4 && xhr.status === 200) {
 			try {
+				alert(0011);
 				if (xhr.responseText.trim() === "success") {
 					const content = "[deleted]";
 					sendUpdatedMessage("delete", messageId, content);
