@@ -158,21 +158,20 @@ function saveEdit() {
 function deleteMessage(button, id) {
 	const bubble = button.closest('.message-bubble');
 	const messageId = id;
-	alert(0000);
 	const xhr = new XMLHttpRequest();
 	xhr.open("POST", "messaging.php", true);
 	xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 	xhr.onreadystatechange = () => {
 		if (xhr.readyState === 4 && xhr.status === 200) {
 			try {
-				alert(0011);
 				if (xhr.responseText.trim() === "success") {
 					const content = "[deleted]";
 					sendUpdatedMessage("delete", messageId, content);
-					alert(1111);
+				}else{
+					alert(xhr.responseText.trim());
 				}
 			} catch (e) {
-				alert(e);
+		
 			}
 		}
 	};
@@ -632,7 +631,6 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 	}
 
 	function handleUpdatedMessage(id_hash, action, msgId, newContent) {
-		alert(2222);
 	if (!chatMessages[id_hash] || !chatMessages[id_hash].messages) return;
 
 	const messages = chatMessages[id_hash].messages;
@@ -642,7 +640,6 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 		let decryptedMessage = JSON.parse(decryptMessage(messages[i], key));
 
 		if (decryptedMessage.messageId === msgId) {
-alert(333);
 			switch (action) {
 				case "edit":
 					decryptedMessage.message_content = newContent;
@@ -651,7 +648,6 @@ alert(333);
 				case "delete":
 					decryptedMessage.message_content = newContent;
 					decryptedMessage.is_deleted = 1;
-					alert(4444);
 					break;
 				default:
 					return;
@@ -663,7 +659,6 @@ alert(333);
 	}
 
 	if (id_hash === currentIdentity) populateChatBubbles(currentIdentity, 1);
-alert(5555);
 }
 
 	function handleTypingOrEditing(action, id_hash) {
