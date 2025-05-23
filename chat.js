@@ -170,7 +170,7 @@ function deleteMessage(button, id) {
 				if (xhr.responseText.trim() === "success") {
 					const bubble = document.getElementById(`message-${messageId}`);
 				if(bubble) bubble.remove();
-				const content = encryptMessage("This message was deleted.", chatMessages[currentIdentity].chatPrint));
+				const content = encryptMessage("This message was deleted.", chatMessages[currentIdentity].chatPrint);
 				sendUpdatedMessage("delete", messageId, content);
 				}
 			} catch (e) {
