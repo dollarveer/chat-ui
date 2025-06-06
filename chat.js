@@ -474,7 +474,10 @@ if (type === 'own') {
 		wrapper.appendChild(timeLabel);
 
 		chatBox.appendChild(wrapper);
-		messageStatusUpdate("read", msg.messageId, userhash);
+		if (!msg.read_by.includes(userhash)){
+  			messageStatusUpdate("read", msg.messageId, userhash);
+			sendMsgStatus(chatId, "read", msg.messageId);
+		}
 	});
 
 	if (!newMsgs) {
@@ -654,6 +657,7 @@ function handleSentMessage(id_hash, response) {
 		for (const encryptedMsg of sentMsg) {
 			const decrypted = JSON.parse(decryptMessage(encryptedMsg, key));
 			messageStatusUpdate("delivered", decrypted.messageId, currentUserHash);
+			sendMsgStatus(id_hash, "delivered", decrypted.messageId);
 		}
 	}
 
@@ -721,7 +725,67 @@ function handleMessageStatusUpdate(id_hash, msgId, userHash, type) {
 			break;
 		}
 	}
+	if (id_hash === currentIdentity) updateTickDisplay(msgId, id_hash);
+}
 
+function updateTickDisplay(messageId, chatId) {
+	if (!messageId || !chatId || !chatMessages[chatId]) return;
+
+	const messages = chatMessages[chatId].messages;
+	const wrapper = document.getElementById(`message-${messageId}`);
+	if (!wrapper) return;
+
+	const bubble = wrapper.querySelector('.ownBubble');
+	if (!bubble) return;
+
+	const total = chatMessages[chatId].totalUsers || 1;
+
+	// Find the original message and decrypt it
+	const rawMsg = messages.find(m => {
+		try {
+			const decrypted = JSON.parse(decryptMessage(m, chatMessages[chatId].chatPrint).trim());
+			return decrypted.messageId === messageId;
+		} catch (e) {
+			return false;
+		}
+	});
+
+	if (!rawMsg) return;
+
+	const msg = JSON.parse(decryptMessage(rawMsg, chatMessages[chatId].chatPrint).trim());
+	const delivered = msg.delivered_to?.length || 0;
+	const read = msg.read_by?.length || 0;
+
+	let newHtml = '';
+	let tick = '';
+	let countText = '';
+
+	if (read >= total) {
+		tick = `<span class="tickStatus tick-read">✓✓</span>`;
+	} else if (delivered >= total) {
+		tick = `<span class="tickStatus">✓✓</span>`;
+	} else if (delivered > 0) {
+		tick = `<span class="tickStatus">✓✓</span>`;
+		countText = `<span class="tickCount"> ${delivered}/${total}</span>`;
+	} else {
+		tick = `<span class="tickStatus">✓</span>`;
+	}
+
+	if (total > 2 && (read < total || delivered < total)) {
+		countText = `<span class="tickCount"> ${Math.max(read, delivered)}/${total}</span>`;
+	}
+
+	newHtml = `${tick}${countText}`;
+
+	// Replace existing tick indicators only if changed
+	const existingTicks = bubble.querySelectorAll('.tickStatus, .tickCount');
+	let currentHtml = '';
+	existingTicks.forEach(el => currentHtml += el.outerHTML);
+
+	if (newHtml !== currentHtml) {
+		existingTicks.forEach(el => el.remove()); // Remove old ticks
+		bubble.insertAdjacentHTML('beforeend', newHtml); // Insert updated ticks
+	}
 }
 
 	function handleTypingOrEditing(action, id_hash) {
@@ -771,6 +835,21 @@ function handleMessageStatusUpdate(id_hash, msgId, userHash, type) {
 		if (diff < 120) return "just now";
 		if (diff < 3600) return `${Math.floor(diff / 60)} minutes ago`;
 		if (diff < 86400) return `${Math.floor(diff / 3600)} hour(s) ago`;
+	}
+
+	function sendMsgStatus(identity, type, messageId) {
+		const xhr = new XMLHttpRequest();
+		xhr.open("POST", "messaging.php", true);
+		xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+		xhr.onreadystatechange = function () {
+			if (xhr.readyState === 4) {
+				if (xhr.status === 200) {
+					
+				}
+			}
+		};
+		xhr.send("action="+type+"&messageId="+ messageId +"&identity=" + encodeURIComponent(identity));
 	}
 
 	function notifyMessage(fingerprint) {
@@ -1457,7 +1536,7 @@ function handleMessageStatusUpdate(id_hash, msgId, userHash, type) {
 
 	});
 
-	document.getElementById("search-input").addEventListener('input', function () {
+document.getElementById("search-input").addEventListener('input', function () {
   const searchString = this.value.toLowerCase().trim();
 
   const wrappers = document.querySelectorAll('.bubbleWrapper');
