@@ -474,7 +474,7 @@ if (type === 'own') {
 		wrapper.appendChild(timeLabel);
 
 		chatBox.appendChild(wrapper);
-		messageStatusUpdate("read", msg.messageId, currentUserHash);
+		messageStatusUpdate("read", msg.messageId, userhash);
 	});
 
 	if (!newMsgs) {
