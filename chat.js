@@ -846,7 +846,7 @@ function updateTickDisplay(messageId, chatId) {
 		xhr.onreadystatechange = function () {
 			if (xhr.readyState === 4) {
 				if (xhr.status === 200) {
-					
+					alert(type + "\n\n"+xhr.responseText.trim());
 				}
 			}
 		};
