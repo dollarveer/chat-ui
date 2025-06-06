@@ -303,9 +303,11 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 	const chatType = chatMessages[chatId].chatType;
 	const chatPrint = chatMessages[chatId].chatPrint;
 	const total = chatMessages[chatId].totalUsers - 1;
+	const oldHeight = chatBox.scrollHeight;
+	const oldScrollTop = chatBox.scrollTop;
 
 	if (!msgs || msgs.length === 0) return;
-
+try {
 	msgs.forEach(msg => {
 		msg = JSON.parse(decryptMessage(msg, chatMessages[chatId].chatPrint).trim());
 		const alias = renderAlias(msg.sender_hash, userhash, aliasMap, chatType);
@@ -474,15 +476,19 @@ if (type === 'own') {
 		wrapper.appendChild(timeLabel);
 
 		chatBox.appendChild(wrapper);
-		alert(msg.messageId);
 		if (!msg.read_by.includes(userhash) || type === 'own' ){
   			messageStatusUpdate("read", msg.messageId, userhash);
 			sendMsgStatus(chatId, "read", msg.messageId);
 		}
 	});
-
+}catch (e) {
+	alert(e);
+}
 	if (!newMsgs) {
 		chatBox.scrollTop = chatBox.scrollHeight;
+	}else {
+		const newHeight = chatBox.scrollHeight;
+		chatBox.scrollTop = oldScrollTop + (newHeight - oldHeight);
 	}
 }
 
