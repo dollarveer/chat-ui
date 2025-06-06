@@ -10,6 +10,7 @@ let chatMessages = {};
 let aliasMap = {};
 let countdownTimers = {};
 let currentChatPrint = "";
+let currentTotalUsers = "";
 
 let isMute = localStorage.getItem('isMute') === "true";
 let vibrate = localStorage.getItem('vibrate') === "true";
@@ -301,6 +302,7 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 	const aliasMap = chatMessages[chatId].aliasMap;
 	const chatType = chatMessages[chatId].chatType;
 	const chatPrint = chatMessages[chatId].chatPrint;
+	const total = chatMessages[chatId].totalUsers;
 
 	if (!msgs || msgs.length === 0) return;
 
@@ -429,19 +431,31 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 			}
 		}
 
-		if (type === 'own') {
-			switch (msg.status) {
-				case 'sent':
-					html += `<span class="tickStatus">✓</span>`;
-					break;
-				case 'delivered':
-					html += `<span class="tickStatus">✓✓</span>`;
-					break;
-				case 'read':
-					html += `<span class="tickStatus tick-read">✓✓</span>`;
-					break;
-			}
-		}
+if (type === 'own') {
+	const delivered = msg.delivered_to?.length || 0;
+	const read = msg.read_by?.length || 0;
+
+	let tick = '';
+	let countText = '';
+
+	if (read >= total) {
+		tick = `<span class="tickStatus tick-read">✓✓</span>`;
+	} else if (delivered >= total) {
+		tick = `<span class="tickStatus">✓✓</span>`;
+	} else if (delivered > 0) {
+		tick = `<span class="tickStatus">✓✓</span>`;
+		countText = `<span class="tickCount"> ${delivered}/${total}</span>`;
+	} else {
+		tick = `<span class="tickStatus">✓</span>`;
+	}
+
+	// For group chat only (totalUsers > 2)
+	if (total > 2 && (read < total || delivered < total)) {
+		countText = `<span class="tickCount"> ${Math.max(read, delivered)}/${total}</span>`;
+	}
+
+	html += `${tick}${countText}`;
+}
 
 		
 		bubble.innerHTML += html;
@@ -460,6 +474,7 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 		wrapper.appendChild(timeLabel);
 
 		chatBox.appendChild(wrapper);
+		messageStatusUpdate("read", msg.messageId, currentUserHash);
 	});
 
 	if (!newMsgs) {
@@ -528,6 +543,10 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 		sendWS("editing", { isEditing: status });
 	}
 
+	function messageStatusUpdate(type, id, user_hash) {
+		sendWS("message_status_update", { type: type, messageId: id, userHash: user_hash });
+	}
+
 	function userExit() {
 		sendWS("user_exit");
 	}
@@ -576,6 +595,10 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 					handleTypingOrEditing("editing", msg.identity_hash);
 					//console.log("User is editing a message");
 					break;
+				case "message_status_update":
+					handleMessageStatusUpdate(msg.identity_hash, msg.payload.messageId, msg.payload.userHash, msg.payload.type);
+					//console.log("Message status updated");
+					break;
 				case "expire_warning":
 					alert(`Chat: ${msg.identity_hash} will be locked permanently due to inactivity. Chat locks in ${msg.payload.timeLeft} seconds`);
 					//console.log("Session warning", msg.identity_hash);
@@ -619,18 +642,25 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 		}, 20000); // Retry after 5 seconds
 	}
 
-	// Handle received message and add it to the chat
-	function handleSentMessage(id_hash, response) {
-		const sentMsg = JSON.parse(response);
-		if (Array.isArray(sentMsg) && sentMsg.length > 0) {
-			chatMessages[id_hash].messages.push(...sentMsg);
-			chatMessages[id_hash].lastMessageId = sentMsg[sentMsg.length - 1].messageId;
-		}
+// Handle received message and add it to the chat
+function handleSentMessage(id_hash, response) {
+	const sentMsg = JSON.parse(response);
+	if (Array.isArray(sentMsg) && sentMsg.length > 0) {
+		chatMessages[id_hash].messages.push(...sentMsg);
+		chatMessages[id_hash].lastMessageId = sentMsg[sentMsg.length - 1].messageId;
 
-		if (id_hash === currentIdentity) populateChatBubbles(currentIdentity, 1);
+		const key = chatMessages[id_hash].chatPrint;
+
+		for (const encryptedMsg of sentMsg) {
+			const decrypted = JSON.parse(decryptMessage(encryptedMsg, key));
+			messageStatusUpdate("delivered", decrypted.messageId, currentUserHash);
+		}
 	}
 
-	function handleUpdatedMessage(id_hash, action, msgId, newContent) {
+	if (id_hash === currentIdentity) populateChatBubbles(currentIdentity, 1);
+}
+
+function handleUpdatedMessage(id_hash, action, msgId, newContent) {
 	if (!chatMessages[id_hash] || !chatMessages[id_hash].messages) return;
 
 	const messages = chatMessages[id_hash].messages;
@@ -659,6 +689,39 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 	}
 
 	if (id_hash === currentIdentity) populateChatBubbles(currentIdentity, 1);
+}
+
+function handleMessageStatusUpdate(id_hash, msgId, userHash, type) {
+	if (!chatMessages[id_hash] || !chatMessages[id_hash].messages) return;
+
+	const messages = chatMessages[id_hash].messages;
+	const key = chatMessages[id_hash].chatPrint;
+
+	for (let i = 0; i < messages.length; i++) {
+		let decryptedMessage = JSON.parse(decryptMessage(messages[i], key));
+
+		if (decryptedMessage.messageId === msgId) {
+			if (type === "delivered") {
+				if (!decryptedMessage.delivered_to.includes(userHash)) {
+					decryptedMessage.delivered_to.push(userHash);
+				}
+			} else if (type === "read") {
+				// Only add to read_by if user already has it delivered
+				if (
+					decryptedMessage.delivered_to.includes(userHash) &&
+					!decryptedMessage.read_by.includes(userHash)
+				) {
+					decryptedMessage.read_by.push(userHash);
+				}
+			} else {
+				return;
+			}
+
+			messages[i] = encryptMessage(JSON.stringify(decryptedMessage), key);
+			break;
+		}
+	}
+
 }
 
 	function handleTypingOrEditing(action, id_hash) {
@@ -1047,6 +1110,7 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 			const nameCellContent = row.cells[1].textContent;
 			const statusCellContent = row.cells[2].textContent;
 			const typeCellContent = row.cells[3].textContent;
+			const connectedCellContent = row.cells[4].textContent;
 			const codeCellContent = row.cells[6].textContent;
 
 			if (statusCellContent == "active" && !activeChatsContainer.querySelector(`li[data-identity="${idcellContent}"]`)) {
@@ -1063,7 +1127,7 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 				activeChatsContainer.appendChild(chatItem);
 				document.getElementById("active-not").innerText = ++new_chats;
 				chatItem.querySelector('.enter-chat').addEventListener('click', function () {
-					openChatScreen(idcellContent, nameCellContent, typeCellContent, codeCellContent);
+					openChatScreen(idcellContent, nameCellContent, typeCellContent, codeCellContent, connectedCellContent);
 				});
 			}
 		}
@@ -1119,7 +1183,7 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 		}
 	});
 
-	function openChatScreen(identity, name, chat_type, code) {
+	function openChatScreen(identity, name, chat_type, code, users) {
 		// Hide non-chat UI elements
 		["mobile-tabs", "form-inputs", "session-table", "footer", "header"].forEach(id =>
 			document.getElementById(id).style.display = 'none'
@@ -1131,6 +1195,7 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 
 		// Set the current chat details and join session
 		currentIdentity = identity;
+		currentTotalUsers = users.split("/")[0];
 		document.getElementById("header-chat-name").innerText = name;
 		document.getElementById("avatar").innerText = name.charAt(0);
 		document.getElementById("header-chat-code").innerText = code;
@@ -1247,7 +1312,8 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 							chatType: chat_type,
 							lastSeen: "online",
 							aliasMap: aliasMap,
-							chatPrint: currentChatPrint
+							chatPrint: currentChatPrint,
+							totalUsers: currentTotalUsers
 						};
 						currentChatUserHash = null;
 						aliasMap = {};
@@ -1266,11 +1332,13 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 						chatType: chat_type,
 						lastSeen: "online",
 						aliasMap: aliasMap,
-						chatPrint: currentChatPrint
+						chatPrint: currentChatPrint,
+						totalUsers: currentTotalUsers
 					};
 					currentChatUserHash = null;
 					aliasMap = {};
 					currentChatPrint = null;
+					currentTotalUsers = null;
 				}
 			}
 
