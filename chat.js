@@ -648,6 +648,7 @@ if (type === 'own') {
 // Handle received message and add it to the chat
 function handleSentMessage(id_hash, response) {
 	const sentMsg = JSON.parse(response);
+	const userHash = chatMessages[id_hash].userHash;
 	if (Array.isArray(sentMsg) && sentMsg.length > 0) {
 		chatMessages[id_hash].messages.push(...sentMsg);
 		chatMessages[id_hash].lastMessageId = sentMsg[sentMsg.length - 1].messageId;
@@ -656,7 +657,7 @@ function handleSentMessage(id_hash, response) {
 
 		for (const encryptedMsg of sentMsg) {
 			const decrypted = JSON.parse(decryptMessage(encryptedMsg, key));
-			messageStatusUpdate("delivered", decrypted.messageId, currentUserHash);
+			messageStatusUpdate("delivered", decrypted.messageId, userHash);
 			sendMsgStatus(id_hash, "delivered", decrypted.messageId);
 		}
 	}
