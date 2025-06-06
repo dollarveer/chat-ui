@@ -302,7 +302,7 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 	const aliasMap = chatMessages[chatId].aliasMap;
 	const chatType = chatMessages[chatId].chatType;
 	const chatPrint = chatMessages[chatId].chatPrint;
-	const total = chatMessages[chatId].totalUsers;
+	const total = chatMessages[chatId].totalUsers - 1;
 
 	if (!msgs || msgs.length === 0) return;
 
@@ -474,7 +474,8 @@ if (type === 'own') {
 		wrapper.appendChild(timeLabel);
 
 		chatBox.appendChild(wrapper);
-		if (!msg.read_by.includes(userhash)){
+		alert(msg.messageId);
+		if (!msg.read_by.includes(userhash) || type === 'own' ){
   			messageStatusUpdate("read", msg.messageId, userhash);
 			sendMsgStatus(chatId, "read", msg.messageId);
 		}
@@ -657,8 +658,10 @@ function handleSentMessage(id_hash, response) {
 
 		for (const encryptedMsg of sentMsg) {
 			const decrypted = JSON.parse(decryptMessage(encryptedMsg, key));
-			messageStatusUpdate("delivered", decrypted.messageId, userHash);
-			sendMsgStatus(id_hash, "delivered", decrypted.messageId);
+			if(userHash != decrypted.sender_hash){
+				messageStatusUpdate("delivered", decrypted.messageId, userHash);
+				sendMsgStatus(id_hash, "delivered", decrypted.messageId);
+			}
 		}
 	}
 
@@ -739,7 +742,7 @@ function updateTickDisplay(messageId, chatId) {
 	const bubble = wrapper.querySelector('.ownBubble');
 	if (!bubble) return;
 
-	const total = chatMessages[chatId].totalUsers || 1;
+	const total = chatMessages[chatId].totalUsers - 1;
 
 	// Find the original message and decrypt it
 	const rawMsg = messages.find(m => {
@@ -772,7 +775,7 @@ function updateTickDisplay(messageId, chatId) {
 		tick = `<span class="tickStatus">✓</span>`;
 	}
 
-	if (total > 2 && (read < total || delivered < total)) {
+	if (total > 1 && (read < total || delivered < total)) {
 		countText = `<span class="tickCount"> ${Math.max(read, delivered)}/${total}</span>`;
 	}
 
@@ -787,6 +790,7 @@ function updateTickDisplay(messageId, chatId) {
 		existingTicks.forEach(el => el.remove()); // Remove old ticks
 		bubble.insertAdjacentHTML('beforeend', newHtml); // Insert updated ticks
 	}
+	alert(newHtml);
 }
 
 	function handleTypingOrEditing(action, id_hash) {
@@ -846,7 +850,7 @@ function updateTickDisplay(messageId, chatId) {
 		xhr.onreadystatechange = function () {
 			if (xhr.readyState === 4) {
 				if (xhr.status === 200) {
-					alert(type + "\n\n"+xhr.responseText.trim());
+				
 				}
 			}
 		};
