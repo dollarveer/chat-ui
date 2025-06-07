@@ -1356,12 +1356,15 @@ window.addEventListener('resize', () => {
     document.getElementById("header-chat-code").innerText = code;
     chatBox.innerHTML = "";
     joinSocketSession(currentIdentity);
-    getMessages(chat_type);
-
+    
     // Set the last seen status
     updateLastSeen(currentIdentity);
     const muteEl = document.getElementById("toggleMute");
     muteEl.innerHTML = isMute ? "&#128263;": "&#128266;";
+
+    getMessages(chat_type);
+    messageStatusUpdate("delivered", chatMessages[currentIdentity].lastMessageId, chatMessages[currentIdentity].userHash);
+    sendMsgStatus(id_hash, "delivered", chatMessages[currentIdentity].lastMessageId);
   }
 
   document.getElementById("leave-chat-btn").addEventListener('click', () => {
