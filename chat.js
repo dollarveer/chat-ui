@@ -1445,7 +1445,7 @@ socket.onmessage = function (event) {
           }
           populateChatBubbles(currentIdentity);
         } catch (e) {
-          alert('Failed to load messages');
+          alert('Failed to load messages' + "\n\n" + e);
         }
       } else if (xhr.responseText.trim() === "failed") {
         if (!chatMessages[currentIdentity]) {
