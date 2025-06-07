@@ -1426,7 +1426,7 @@ socket.onmessage = function (event) {
     xhr.onreadystatechange = () => {
       if (xhr.readyState === 4 && xhr.status === 200 && xhr.responseText.trim() !== "failed") {
         try {
-          alert(decryptMessage(xhr.responseText.trim(), currentChatPrint));
+          alert(xhr.responseText.trim());
           const response = JSON.parse(xhr.responseText.trim());
           if (Array.isArray(response)) {
             chatMessages[currentIdentity] = {
