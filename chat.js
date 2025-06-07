@@ -495,7 +495,7 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 /************************ WEBSOCKET ***********************/
 
 // WebSocket secure connection setup
-const socket = new WebSocket("wss://websocket-qk4f.onrender.com"); // use wss for security
+let socket = new WebSocket("wss://websocket-qk4f.onrender.com"); // use wss for security
 let statusTimeout;
 let currentFingerprint = crypto.randomUUID();
 let currentIdentityHash = null;
@@ -664,8 +664,6 @@ socket.onmessage = function (event) {
   };
 
   // Attempt reconnection with a delay if WebSocket is closed or an error occurs
-  let socket = null;
-
 	function connectSocket() {
 		socket = new WebSocket("wss://websocket-qk4f.onrender.com");
 		socket.onopen = onOpenHandler;
