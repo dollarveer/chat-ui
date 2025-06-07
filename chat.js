@@ -696,8 +696,7 @@ socket.onmessage = function (event) {
       for (const encryptedMsg of sentMsg) {
         const decrypted = JSON.parse(decryptMessage(encryptedMsg, key));
         if (userHash != decrypted.sender_hash) {
-          messageStatusUpdate("delivered", decrypted.messageId, userHash);
-          sendMsgStatus(id_hash, "delivered", decrypted.messageId);
+          markAllAsDelivered(id_hash);
         }
       }
     }
@@ -786,6 +785,29 @@ function handleMessageStatusUpdate(id_hash, msgId, userHash, type) {
   if (id_hash === currentIdentity) {
     updateTickDisplay(msgId, id_hash);
   }
+}
+
+function markAllAsDelivered(chatId) {
+  const chatData = chatMessages[chatId];
+  if (!chatData || !chatData.messages) return;
+
+  const userHash = chatData.userHash;
+  const key = chatData.chatPrint;
+
+  chatData.messages.forEach((encryptedMsg, index) => {
+    let msg = JSON.parse(decryptMessage(encryptedMsg, key));
+
+    if (msg.sender_hash === userHash) return;
+    msg.delivered_to = msg.delivered_to || [];
+
+    if (!msg.delivered_to.includes(userHash)) {
+      messageStatusUpdate("delivered", msg.messageId, chatData.userHash);
+      sendMsgStatus(chatId, "delivered", msg.messageId);
+
+      msg.delivered_to.push(userHash);
+      chatData.messages[index] = encryptMessage(JSON.stringify(msg), key);
+    }
+  });
 }
 
   function updateTickDisplay(messageId, chatId) {
@@ -1433,8 +1455,7 @@ window.addEventListener('resize', () => {
 
   function getMessages(chat_type, limit = 50, offset = 0) {
     if (chatMessages[currentIdentity]) {
-      messageStatusUpdate("delivered", chatMessages[currentIdentity].lastMessageId, chatMessages[currentIdentity].userHash);  
-      sendMsgStatus(currentIdentity, "delivered", chatMessages[currentIdentity].lastMessageId); 
+      markAllAsDelivered(id_hash);
       populateChatBubbles(currentIdentity);   
       return;
     }
@@ -1480,8 +1501,7 @@ window.addEventListener('resize', () => {
             currentChatPrint = null;
           }
 		
-	  messageStatusUpdate("delivered", chatMessages[currentIdentity].lastMessageId, chatMessages[currentIdentity].userHash);
-          sendMsgStatus(currentIdentity, "delivered", chatMessages[currentIdentity].lastMessageId);
+	  markAllAsDelivered(id_hash);
           populateChatBubbles(currentIdentity);
         } catch (e) {
           alert('Failed to load messages');
