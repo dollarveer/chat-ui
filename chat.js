@@ -1433,9 +1433,9 @@ window.addEventListener('resize', () => {
 
   function getMessages(chat_type, limit = 50, offset = 0) {
     if (chatMessages[currentIdentity]) {
-      populateChatBubbles(currentIdentity);
       messageStatusUpdate("delivered", chatMessages[currentIdentity].lastMessageId, chatMessages[currentIdentity].userHash);  
-      sendMsgStatus(currentIdentity, "delivered", chatMessages[currentIdentity].lastMessageId);    
+      sendMsgStatus(currentIdentity, "delivered", chatMessages[currentIdentity].lastMessageId); 
+      populateChatBubbles(currentIdentity);   
       return;
     }
 
@@ -1479,9 +1479,10 @@ window.addEventListener('resize', () => {
             aliasMap = {};
             currentChatPrint = null;
           }
-          populateChatBubbles(currentIdentity);
+		
 	  messageStatusUpdate("delivered", chatMessages[currentIdentity].lastMessageId, chatMessages[currentIdentity].userHash);
           sendMsgStatus(currentIdentity, "delivered", chatMessages[currentIdentity].lastMessageId);
+          populateChatBubbles(currentIdentity);
         } catch (e) {
           alert('Failed to load messages');
         }
