@@ -478,18 +478,18 @@ function populateChatBubbles(chatId, newMsgs = 0) {
       wrapper.appendChild(timeLabel);
 
       chatBox.appendChild(wrapper);
+	alert(msg.delivered_to+ "\n\n" +msg.read_by);
 	if (!msg.read_by.includes(userhash) || type === 'own') {
   		messageStatusUpdate("read", msg.messageId, userhash);
   		sendMsgStatus(chatId, "read", msg.messageId);
 
-  // ✅ Add user to read_by manually to avoid resending
-  msg.read_by = msg.read_by || [];
-  if (!msg.read_by.includes(userhash)) {
-    msg.read_by.push(userhash);
-  }
-}
-      }
-		 alert(msg.delivered_to+ "\n\n" +msg.read_by);
+  		// ✅ Add user to read_by manually to avoid resending
+  		msg.read_by = msg.read_by || [];
+  		if (!msg.read_by.includes(userhash)) {
+    			msg.read_by.push(userhash);
+  		}
+	}
+		 
     });
   
   if (!newMsgs) {
