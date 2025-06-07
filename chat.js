@@ -478,14 +478,12 @@ function populateChatBubbles(chatId, newMsgs = 0) {
       wrapper.appendChild(timeLabel);
 
       chatBox.appendChild(wrapper);
-	if (!msg.read_by.includes(userhash) || type === 'own') {
+	    
+	msg.read_by = msg.read_by || [];
+	if (type !== 'own' && !msg.read_by.includes(userhash)) {
   		messageStatusUpdate("read", msg.messageId, userhash);
   		sendMsgStatus(chatId, "read", msg.messageId);
-
-  		msg.read_by = msg.read_by || [];
-  		if (!msg.read_by.includes(userhash)) {
-    			msg.read_by.push(userhash);
-  		}
+  		msg.read_by.push(userhash);
 	}
 		 
     });
