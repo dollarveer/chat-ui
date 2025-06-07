@@ -736,38 +736,57 @@ socket.onmessage = function (event) {
     if (id_hash === currentIdentity) populateChatBubbles(currentIdentity, 1);
   }
 
-  function handleMessageStatusUpdate(id_hash, msgId, userHash, type) {
-    if (!chatMessages[id_hash] || !chatMessages[id_hash].messages) return;
+function handleMessageStatusUpdate(id_hash, msgId, userHash, type) {
+  if (!chatMessages[id_hash] || !chatMessages[id_hash].messages) return;
 
-    const messages = chatMessages[id_hash].messages;
-    const key = chatMessages[id_hash].chatPrint;
+  const messages = chatMessages[id_hash].messages;
+  const key = chatMessages[id_hash].chatPrint;
 
-    for (let i = 0; i < messages.length; i++) {
-      let decryptedMessage = JSON.parse(decryptMessage(messages[i], key));
+  let targetIndex = -1;
 
-      if (decryptedMessage.messageId === msgId) {
-        if (type === "delivered") {
-          if (!decryptedMessage.delivered_to.includes(userHash)) {
-            decryptedMessage.delivered_to.push(userHash);
-          }
-        } else if (type === "read") {
-          // Only add to read_by if user already has it delivered
-          if (
-            decryptedMessage.delivered_to.includes(userHash) &&
-            !decryptedMessage.read_by.includes(userHash)
-          ) {
-            decryptedMessage.read_by.push(userHash);
-          }
-        } else {
-          return;
-        }
+  // First: find the index of the target messageId
+  for (let i = 0; i < messages.length; i++) {
+    const decrypted = JSON.parse(decryptMessage(messages[i], key));
+    if (decrypted.messageId === msgId) {
+      targetIndex = i;
+      break;
+    }
+  }
 
-        messages[i] = encryptMessage(JSON.stringify(decryptedMessage), key);
-        break;
+  if (targetIndex === -1) return; // Message not found
+
+  // Second: go back from 0 to targetIndex and update messages
+  for (let i = 0; i <= targetIndex; i++) {
+    let decrypted = JSON.parse(decryptMessage(messages[i], key));
+    let updated = false;
+
+    decrypted.delivered_to = decrypted.delivered_to || [];
+    decrypted.read_by = decrypted.read_by || [];
+
+    if (type === "delivered") {
+      if (!decrypted.delivered_to.includes(userHash)) {
+        decrypted.delivered_to.push(userHash);
+        updated = true;
+      }
+    } else if (type === "read") {
+      if (
+        decrypted.delivered_to.includes(userHash) &&
+        !decrypted.read_by.includes(userHash)
+      ) {
+        decrypted.read_by.push(userHash);
+        updated = true;
       }
     }
-    if (id_hash === currentIdentity) updateTickDisplay(msgId, id_hash);
+
+    if (updated) {
+      messages[i] = encryptMessage(JSON.stringify(decrypted), key);
+    }
   }
+
+  if (id_hash === currentIdentity) {
+    updateTickDisplay(msgId, id_hash);
+  }
+}
 
   function updateTickDisplay(messageId, chatId) {
     if (!messageId || !chatId || !chatMessages[chatId]) return;
