@@ -1363,8 +1363,6 @@ window.addEventListener('resize', () => {
     muteEl.innerHTML = isMute ? "&#128263;": "&#128266;";
 
     getMessages(chat_type);
-    messageStatusUpdate("delivered", chatMessages[currentIdentity].lastMessageId, chatMessages[currentIdentity].userHash);
-    sendMsgStatus(id_hash, "delivered", chatMessages[currentIdentity].lastMessageId);
   }
 
   document.getElementById("leave-chat-btn").addEventListener('click', () => {
@@ -1436,6 +1434,8 @@ window.addEventListener('resize', () => {
   function getMessages(chat_type, limit = 50, offset = 0) {
     if (chatMessages[currentIdentity]) {
       populateChatBubbles(currentIdentity);
+      messageStatusUpdate("delivered", chatMessages[currentIdentity].lastMessageId, chatMessages[currentIdentity].userHash);  
+      sendMsgStatus(currentIdentity, "delivered", chatMessages[currentIdentity].lastMessageId);    
       return;
     }
 
@@ -1480,6 +1480,8 @@ window.addEventListener('resize', () => {
             currentChatPrint = null;
           }
           populateChatBubbles(currentIdentity);
+	  messageStatusUpdate("delivered", chatMessages[currentIdentity].lastMessageId, chatMessages[currentIdentity].userHash);
+          sendMsgStatus(currentIdentity, "delivered", chatMessages[currentIdentity].lastMessageId);
         } catch (e) {
           alert('Failed to load messages');
         }
