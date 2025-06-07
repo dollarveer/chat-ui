@@ -1455,7 +1455,7 @@ window.addEventListener('resize', () => {
 
   function getMessages(chat_type, limit = 50, offset = 0) {
     if (chatMessages[currentIdentity]) {
-      markAllAsDelivered(id_hash);
+      markAllAsDelivered(currentIdentity);
       populateChatBubbles(currentIdentity);   
       return;
     }
@@ -1501,7 +1501,7 @@ window.addEventListener('resize', () => {
             currentChatPrint = null;
           }
 		
-	  markAllAsDelivered(id_hash);
+	  markAllAsDelivered(currentIdentity);
           populateChatBubbles(currentIdentity);
         } catch (e) {
           alert('Failed to load messages');
