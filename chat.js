@@ -482,11 +482,9 @@ function populateChatBubbles(chatId, newMsgs = 0) {
   		messageStatusUpdate("read", msg.messageId, userhash);
   		sendMsgStatus(chatId, "read", msg.messageId);
 
-  		// ✅ Add user to read_by manually to avoid resending
   		msg.read_by = msg.read_by || [];
   		if (!msg.read_by.includes(userhash)) {
     			msg.read_by.push(userhash);
-			alert(msg.delivered_to + "\n\n" + msg.read_by);
   		}
 	}
 		 
@@ -1283,34 +1281,45 @@ socket.onmessage = function (event) {
     }
   }
 
-  window.addEventListener('load', () => {
-    if (window.innerWidth < 768) {
-      showTab('center');
-      new_session = ""; new_chats = "";
-      document.getElementById("active-not").innerText = new_chats;
-      document.getElementById("sessions-not").innerText = new_session;
-    } else ['left',
-      'form-inputs',
-      'session-table'].forEach(id => document.getElementById(id).style.display = 'block');
-  });
-  window.addEventListener('resize', () => {
-    if (window.innerWidth < 768) {
-      showTab('center');
-      if (currentIdentity) {
-        document.getElementById('form-inputs').style.display = 'none';
-      } else {
-        document.getElementById("mobile-tabs").style.display = 'block';
-      }
-      new_session = ""; new_chats = "";
-      document.getElementById("active-not").innerText = new_chats;
-      document.getElementById("sessions-not").innerText = new_session;
+  let isMobileView = window.innerWidth < 768;
+
+function applyResponsiveLayout() {
+  if (isMobileView) {
+    // Mobile view
+    showTab('center');
+    new_session = "";
+    new_chats = "";
+    document.getElementById("active-not").innerText = new_chats;
+    document.getElementById("sessions-not").innerText = new_session;
+
+    if (currentIdentity) {
+      document.getElementById('form-inputs').style.display = 'none';
     } else {
-      ['left',
-        'form-inputs',
-        'session-table'].forEach(id => document.getElementById(id).style.display = 'block');
-      document.getElementById("mobile-tabs").style.display = 'none';
+      document.getElementById("mobile-tabs").style.display = 'block';
     }
-  });
+
+  } else {
+    // Desktop view
+    ['left', 'form-inputs', 'session-table'].forEach(id => {
+      document.getElementById(id).style.display = 'block';
+    });
+    document.getElementById("mobile-tabs").style.display = 'none';
+  }
+}
+
+// On load
+window.addEventListener('load', () => {
+  applyResponsiveLayout();
+});
+
+// On resize — only if view state changes
+window.addEventListener('resize', () => {
+  const nowMobile = window.innerWidth < 768;
+  if (nowMobile !== isMobileView) {
+    isMobileView = nowMobile;
+    applyResponsiveLayout();
+  }
+});
 
   function openChatScreen(identity, name, chat_type, code, users) {
     // Hide non-chat UI elements
@@ -1434,7 +1443,6 @@ socket.onmessage = function (event) {
     xhr.onreadystatechange = () => {
       if (xhr.readyState === 4 && xhr.status === 200 && xhr.responseText.trim() !== "failed") {
         try {
-          alert(xhr.responseText.trim());
           const response = JSON.parse(xhr.responseText.trim());
           if (Array.isArray(response)) {
             chatMessages[currentIdentity] = {
@@ -1453,7 +1461,7 @@ socket.onmessage = function (event) {
           }
           populateChatBubbles(currentIdentity);
         } catch (e) {
-          alert('Failed to load messages' + "\n\n" + e);
+          alert('Failed to load messages');
         }
       } else if (xhr.responseText.trim() === "failed") {
         if (!chatMessages[currentIdentity]) {
