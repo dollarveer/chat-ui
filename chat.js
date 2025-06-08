@@ -630,6 +630,7 @@ socket.onmessage = function (event) {
         break;
       case "message_status_update":
         handleMessageStatusUpdate(msg.identity_hash, msg.payload.messageId, msg.payload.userHash, msg.payload.type);
+		    alert("ws " + msg.payload.type + " " + msg.payload.messageId);
         //console.log("Message status updated");
         break;
       case "expire_warning":
@@ -868,7 +869,7 @@ function markAllAsDelivered(chatId) {
       existingTicks.forEach(el => el.remove()); // Remove old ticks
       bubble.insertAdjacentHTML('beforeend', newHtml); // Insert updated ticks
     }
-    alert(newHtml);
+    //alert(newHtml);
   }
 
   function handleTypingOrEditing(action, id_hash) {
