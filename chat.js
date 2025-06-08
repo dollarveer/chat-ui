@@ -802,7 +802,6 @@ function markAllAsDelivered(chatId) {
 
     if (!msg.delivered_to.includes(userHash)) {
       sendMsgStatus(chatId, "delivered", msg.messageId, userHash);
-
       msg.delivered_to.push(userHash);
       chatData.messages[index] = encryptMessage(JSON.stringify(msg), key);
     }
@@ -930,6 +929,8 @@ function markAllAsDelivered(chatId) {
         if (xhr.status === 200) {
 		if(xhr.responseText.trim() == "success"){
 			messageStatusUpdate(type, msg.messageId, userhash);
+		}else{
+			alert(xhr.responseText.trim());
 		}	
 
 	}
