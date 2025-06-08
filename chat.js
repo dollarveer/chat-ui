@@ -481,8 +481,7 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 	    
 	msg.read_by = msg.read_by || [];
 	if (type !== 'own' && !msg.read_by.includes(userhash)) {
-  		messageStatusUpdate("read", msg.messageId, userhash);
-  		sendMsgStatus(chatId, "read", msg.messageId);
+  		sendMsgStatus(chatId, "read", msg.messageId, userhash);
   		msg.read_by.push(userhash);
 	}
 		 
@@ -802,8 +801,7 @@ function markAllAsDelivered(chatId) {
     msg.delivered_to = msg.delivered_to || [];
 
     if (!msg.delivered_to.includes(userHash)) {
-      messageStatusUpdate("delivered", msg.messageId, chatData.userHash);
-      sendMsgStatus(chatId, "delivered", msg.messageId);
+      sendMsgStatus(chatId, "delivered", msg.messageId, userHash);
 
       msg.delivered_to.push(userHash);
       chatData.messages[index] = encryptMessage(JSON.stringify(msg), key);
@@ -922,7 +920,7 @@ function markAllAsDelivered(chatId) {
     if (diff < 86400) return `${Math.floor(diff / 3600)} hour(s) ago`;
   }
 
-  function sendMsgStatus(identity, type, messageId) {
+  function sendMsgStatus(identity, type, messageId, userhash) {
     const xhr = new XMLHttpRequest();
     xhr.open("POST", "messaging.php", true);
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -930,7 +928,10 @@ function markAllAsDelivered(chatId) {
     xhr.onreadystatechange = function () {
       if (xhr.readyState === 4) {
         if (xhr.status === 200) {
-		alert(xhr.responseText.trim());
+		if(xhr.responseText.trim() == "success"){
+			messageStatusUpdate(type, msg.messageId, userhash);
+		}	
+
 	}
       }
     };
