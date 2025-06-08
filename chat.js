@@ -936,8 +936,6 @@ function markAllAsDelivered(chatId) {
 	}else{
 		alert("2"+xhr.responseText.trim());
 	}
-      }else{
-	      alert("3" +xhr.responseText.trim());
       }
     };
     xhr.send("action="+type+"&messageId="+ messageId +"&identity=" + encodeURIComponent(identity));
