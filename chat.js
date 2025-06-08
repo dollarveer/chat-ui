@@ -930,10 +930,14 @@ function markAllAsDelivered(chatId) {
 		if(xhr.responseText.trim() == "success"){
 			messageStatusUpdate(type, msg.messageId, userhash);
 		}else{
-			alert(xhr.responseText.trim());
+			alert("1"+xhr.responseText.trim());
 		}	
 
+	}else{
+		alert("2"+xhr.responseText.trim());
 	}
+      }else{
+	      alert("3" +xhr.responseText.trim());
       }
     };
     xhr.send("action="+type+"&messageId="+ messageId +"&identity=" + encodeURIComponent(identity));
