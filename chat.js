@@ -479,10 +479,13 @@ function populateChatBubbles(chatId, newMsgs = 0) {
 
       chatBox.appendChild(wrapper);
 	    
-	msg.read_by = msg.read_by || [];
-	if (type !== 'own' && !msg.read_by.includes(userhash)) {
-  		sendMsgStatus(chatId, "read", msg.messageId, userhash);
-  		msg.read_by.push(userhash);
+	if (type !== 'own') {
+  		if (!msg.read_by.includes(userhash)) {
+        		sendMsgStatus(chatId, "read", msg.messageId, userhash);
+        		msg.read_by.push(userhash);
+        		updateMessageStatusLocal(chatId, msg.messageId, userhash, "read");
+		}
+
 	}
 		 
     });
@@ -494,6 +497,32 @@ function populateChatBubbles(chatId, newMsgs = 0) {
     chatBox.scrollTop = oldScrollTop + (newHeight - oldHeight);
   }
 }
+
+function updateMessageStatusLocal(chatId, msgId, userHash, type) {
+    if (!chatMessages[chatId] || !chatMessages[chatId].messages) return;
+
+    const messages = chatMessages[chatId].messages;
+    const key = chatMessages[chatId].chatPrint;
+
+    for (let i = 0; i < messages.length; i++) {
+        let decrypted = JSON.parse(decryptMessage(messages[i], key));
+        if (decrypted.messageId === msgId) {
+            if (type === "read") {
+                decrypted.read_by = decrypted.read_by || [];
+                if (!decrypted.read_by.includes(userHash)) {
+                    decrypted.read_by.push(userHash);
+                }
+            } else if (type === "delivered") {
+                decrypted.delivered_to = decrypted.delivered_to || [];
+                if (!decrypted.delivered_to.includes(userHash)) {
+                    decrypted.delivered_to.push(userHash);
+                }
+            }
+            messages[i] = encryptMessage(JSON.stringify(decrypted), key);
+            break;
+        }
+    }
+  }
 
 /************************ WEBSOCKET ***********************/
 
@@ -798,12 +827,12 @@ function markAllAsDelivered(chatId) {
     let msg = JSON.parse(decryptMessage(encryptedMsg, key));
 
     if (msg.sender_hash === userHash) return;
+
     msg.delivered_to = msg.delivered_to || [];
 
     if (!msg.delivered_to.includes(userHash)) {
       sendMsgStatus(chatId, "delivered", msg.messageId, userHash);
-      msg.delivered_to.push(userHash);
-      chatData.messages[index] = encryptMessage(JSON.stringify(msg), key);
+      updateMessageStatusLocal(chatId, msg.messageId, userHash, "delivered");
     }
   });
 }
