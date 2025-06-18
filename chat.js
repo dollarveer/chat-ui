@@ -928,7 +928,7 @@ function markAllAsDelivered(chatId) {
       if (xhr.readyState === 4) {
         if (xhr.status === 200) {
 		if(xhr.responseText.trim() == "success"){
-			messageStatusUpdate(type, msg.messageId, userhash);
+			messageStatusUpdate(type, messageId, userhash);
 			alert("sent");
 		}else{
 			alert("1"+xhr.responseText.trim());
