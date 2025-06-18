@@ -658,7 +658,6 @@ socket.onmessage = function (event) {
         break;
       case "message_status_update":
         handleMessageStatusUpdate(msg.identity_hash, msg.payload.messageId, msg.payload.userHash, msg.payload.type);
-		    alert("ws " + msg.payload.type + " " + msg.payload.messageId);
         //console.log("Message status updated");
         break;
       case "expire_warning":
@@ -958,13 +957,7 @@ function markAllAsDelivered(chatId) {
         if (xhr.status === 200) {
 		if(xhr.responseText.trim() == "success"){
 			messageStatusUpdate(type, messageId, userhash);
-			alert("sent");
-		}else{
-			alert("1"+xhr.responseText.trim());
-		}	
-
-	}else{
-		alert("2"+xhr.responseText.trim());
+		}
 	}
       }
     };
