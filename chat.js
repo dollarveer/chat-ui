@@ -527,7 +527,7 @@ function updateMessageStatusLocal(chatId, msgId, userHash, type) {
 /************************ WEBSOCKET ***********************/
 
 // WebSocket secure connection setup
-let socket = new WebSocket("wss://websocket-qk4f.onrender.com"); // use wss for security
+let socket = new WebSocket("wss://websocket-p1g1.onrender.com"); // use wss for security
 let statusTimeout;
 let currentFingerprint = crypto.randomUUID();
 let currentIdentityHash = null;
@@ -697,7 +697,7 @@ socket.onmessage = function (event) {
 
   // Attempt reconnection with a delay if WebSocket is closed or an error occurs
 	function connectSocket() {
-		socket = new WebSocket("wss://websocket-qk4f.onrender.com");
+		socket = new WebSocket("wss://websocket-p1g1.onrender.com");
 		socket.onopen = onOpenHandler;
 		socket.onmessage = onMessageHandler;
 		socket.onclose = onCloseHandler;
